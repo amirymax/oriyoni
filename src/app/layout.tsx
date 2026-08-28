@@ -5,6 +5,7 @@ import { CartDrawer } from "@/components/CartDrawer";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { CartProvider } from "@/context/CartContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import "./globals.css";
 
@@ -46,15 +47,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${syne.variable} ${manrope.variable} ${cinzel.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <CartProvider>
-          <WishlistProvider>
-            <AnnouncementBar />
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CartDrawer />
-          </WishlistProvider>
-        </CartProvider>
+        <LanguageProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <AnnouncementBar />
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CartDrawer />
+            </WishlistProvider>
+          </CartProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

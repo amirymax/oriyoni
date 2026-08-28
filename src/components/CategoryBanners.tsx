@@ -1,29 +1,34 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRightIcon } from "@/components/icons";
 import { GarmentMockup } from "@/components/mockups/GarmentMockup";
-
-const BANNERS = [
-  {
-    href: "/shop?category=Tees",
-    label: "Tees",
-    copy: "Heavyweight cotton, cut clean. The everyday layer with the crest at heart.",
-    garment: "tee" as const,
-  },
-  {
-    href: "/shop?category=Hoodies",
-    label: "Hoodies",
-    copy: "Brushed fleece built for cold mornings and long nights. Zero compromise.",
-    garment: "hoodie" as const,
-  },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export function CategoryBanners() {
+  const { t } = useLanguage();
+
+  const banners = [
+    {
+      href: "/shop?category=Tees",
+      label: t.navTees,
+      copy: t.bannerTeesCopy,
+      garment: "tee" as const,
+    },
+    {
+      href: "/shop?category=Hoodies",
+      label: t.navHoodies,
+      copy: t.bannerHoodiesCopy,
+      garment: "hoodie" as const,
+    },
+  ];
+
   return (
     <section className="container-shell py-16 sm:py-24">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        {BANNERS.map((banner) => (
+        {banners.map((banner) => (
           <Link
-            key={banner.label}
+            key={banner.href}
             href={banner.href}
             className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden bg-charcoal p-8 sm:aspect-[5/6]"
           >
@@ -39,7 +44,7 @@ export function CategoryBanners() {
               </h3>
               <p className="mt-2 max-w-xs text-sm text-white/70">{banner.copy}</p>
               <span className="mt-5 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-white">
-                Shop Now
+                {t.bannerShopNow}
                 <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </span>
             </div>

@@ -4,19 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CartIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "@/components/icons";
 import { useCart } from "@/context/CartContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { categoryLabel } from "@/lib/display";
+import { fmt } from "@/lib/i18n";
 import { products } from "@/lib/products";
-
-const NAV_LINKS = [
-  { href: "/shop", label: "Shop All" },
-  { href: "/shop?category=Tees", label: "Tees" },
-  { href: "/shop?category=Hoodies", label: "Hoodies" },
-  { href: "/shop?category=Accessories", label: "Accessories" },
-  { href: "/shop?tag=sale", label: "Sale" },
-  { href: "/about", label: "About" },
-];
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,12 +19,26 @@ export function Header() {
   const [query, setQuery] = useState("");
   const { count: cartCount, openCart } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { t, l } = useLanguage();
   const router = useRouter();
+
+  const navLinks = [
+    { href: "/shop", label: t.navShopAll },
+    { href: "/shop?category=Tees", label: t.navTees },
+    { href: "/shop?category=Hoodies", label: t.navHoodies },
+    { href: "/shop?category=Accessories", label: t.navAccessories },
+    { href: "/shop?tag=sale", label: t.navSale },
+    { href: "/about", label: t.navAbout },
+  ];
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.trim().toLowerCase();
-    return products.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 5);
+    return products
+      .filter((p) =>
+        [p.name.en, p.name.ru].some((n) => n.toLowerCase().includes(q))
+      )
+      .slice(0, 5);
   }, [query]);
 
   function submitSearch(e: React.FormEvent) {
@@ -42,24 +51,29 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper">
-      <div className="container-shell flex h-16 items-center justify-between gap-4 sm:h-20">
-        <div className="flex items-center gap-2 lg:hidden">
+      {/* Three-column grid keeps the logo centred without the nav ever
+          overlapping it, whatever length the translated labels are. */}
+      <div className="container-shell grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:h-20 sm:gap-4">
+        <div className="flex min-w-0 items-center lg:hidden">
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
-            aria-label="Open menu"
-            className="cursor-pointer p-2 text-ink"
+            aria-label={t.headerOpenMenu}
+            className="cursor-pointer p-1.5 text-ink sm:p-2"
           >
             <MenuIcon className="h-5 w-5" />
           </button>
         </div>
 
-        <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
-          {NAV_LINKS.map((link) => (
+        <nav
+          aria-label={t.headerNavPrimary}
+          className="hidden min-w-0 items-center gap-4 lg:flex xl:gap-7"
+        >
+          {navLinks.map((link) => (
             <Link
-              key={link.label}
+              key={link.href}
               href={link.href}
-              className="text-[13px] font-medium uppercase tracking-[0.08em] text-ink transition-colors hover:text-graphite"
+              className="whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.06em] text-ink transition-colors hover:text-graphite xl:text-[13px] xl:tracking-[0.08em]"
             >
               {link.label}
             </Link>
@@ -68,12 +82,12 @@ export function Header() {
 
         <Link
           href="/"
-          aria-label="ORIYONI home"
-          className="absolute left-1/2 flex -translate-x-1/2 items-center gap-2.5"
+          aria-label={t.headerHome}
+          className="flex items-center justify-self-center gap-2.5"
         >
           <Image
             src="/brand/oriyoni-mark.png"
-            alt="ORIYONI crest"
+            alt="ORIYONI"
             width={40}
             height={40}
             priority
@@ -84,19 +98,20 @@ export function Header() {
           </span>
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center justify-self-end gap-1 sm:gap-2">
+          <LanguageSwitcher />
           <button
             type="button"
             onClick={() => setSearchOpen((v) => !v)}
-            aria-label="Search"
+            aria-label={t.headerSearch}
             aria-expanded={searchOpen}
-            className="cursor-pointer p-2 text-ink"
+            className="cursor-pointer p-1.5 text-ink sm:p-2"
           >
             <SearchIcon className="h-5 w-5" />
           </button>
           <Link
             href="/wishlist"
-            aria-label={`Wishlist, ${wishlistCount} items`}
+            aria-label={fmt(t.headerWishlistLabel, { n: wishlistCount })}
             className="relative hidden cursor-pointer p-2 text-ink sm:inline-flex"
           >
             <HeartIcon className="h-5 w-5" />
@@ -109,8 +124,8 @@ export function Header() {
           <button
             type="button"
             onClick={openCart}
-            aria-label={`Cart, ${cartCount} items`}
-            className="relative cursor-pointer p-2 text-ink"
+            aria-label={fmt(t.headerCartLabel, { n: cartCount })}
+            className="relative cursor-pointer p-1.5 text-ink sm:p-2"
           >
             <CartIcon className="h-5 w-5" />
             {cartCount > 0 && (
@@ -128,16 +143,17 @@ export function Header() {
             <SearchIcon className="h-4.5 w-4.5 shrink-0 text-ash" />
             <input
               autoFocus
-              type="text"
+              type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search tees, hoodies, accessories…"
+              placeholder={t.headerSearchPlaceholder}
+              aria-label={t.headerSearch}
               className="w-full bg-transparent text-sm text-ink placeholder:text-ash focus:outline-none"
             />
             <button
               type="button"
               onClick={() => setSearchOpen(false)}
-              aria-label="Close search"
+              aria-label={t.headerSearchClose}
               className="cursor-pointer p-1 text-ash hover:text-ink"
             >
               <CloseIcon className="h-4 w-4" />
@@ -153,8 +169,10 @@ export function Header() {
                       onClick={() => setSearchOpen(false)}
                       className="flex items-center justify-between py-3 text-sm text-ink hover:text-graphite"
                     >
-                      <span>{p.name}</span>
-                      <span className="text-ash">{p.category}</span>
+                      <span>{l(p.name)}</span>
+                      <span className="text-ash">
+                        {categoryLabel(p.category, t)}
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -167,7 +185,7 @@ export function Header() {
       {menuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
-            aria-label="Close menu"
+            aria-label={t.headerCloseMenu}
             onClick={() => setMenuOpen(false)}
             className="absolute inset-0 cursor-pointer bg-ink/40"
           />
@@ -177,16 +195,21 @@ export function Header() {
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
-                aria-label="Close menu"
+                aria-label={t.headerCloseMenu}
                 className="cursor-pointer p-1 text-ink"
               >
                 <CloseIcon className="h-5 w-5" />
               </button>
             </div>
-            <nav aria-label="Mobile" className="mt-10 flex flex-col gap-6">
-              {NAV_LINKS.map((link) => (
+
+            <div className="mt-6">
+              <LanguageSwitcher />
+            </div>
+
+            <nav aria-label={t.headerNavMobile} className="mt-8 flex flex-col gap-6">
+              {navLinks.map((link) => (
                 <Link
-                  key={link.label}
+                  key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   className="text-base font-medium uppercase tracking-[0.08em] text-ink"
@@ -199,14 +222,14 @@ export function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="text-base font-medium uppercase tracking-[0.08em] text-ink"
               >
-                Wishlist
+                {t.navWishlist}
               </Link>
               <Link
                 href="/contact"
                 onClick={() => setMenuOpen(false)}
                 className="text-base font-medium uppercase tracking-[0.08em] text-ink"
               >
-                Contact
+                {t.navContact}
               </Link>
             </nav>
           </div>

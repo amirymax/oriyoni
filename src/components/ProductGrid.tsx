@@ -1,13 +1,14 @@
+"use client";
+
 import { ProductCard } from "@/components/ProductCard";
+import { useLanguage } from "@/context/LanguageContext";
 import type { Product } from "@/lib/products";
 
 export function ProductGrid({ products }: { products: Product[] }) {
+  const { t } = useLanguage();
+
   if (products.length === 0) {
-    return (
-      <p className="py-16 text-center text-sm text-ash">
-        No pieces here yet — check back soon.
-      </p>
-    );
+    return <p className="py-16 text-center text-sm text-ash">{t.gridEmpty}</p>;
   }
 
   return (

@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/PageHeader";
 import { ShopClient } from "@/app/shop/ShopClient";
 
 export const metadata = {
@@ -22,19 +21,11 @@ export default async function ShopPage({
   const query = first(params.q);
 
   return (
-    <>
-      <PageHeader
-        title="Shop All"
-        description="Heavyweight tees, hoodies, and the accessories built to go with them."
-      />
-      <div className="container-shell py-10 sm:py-14">
-        <ShopClient
-          key={`${category ?? ""}-${tag ?? ""}-${query ?? ""}`}
-          initialCategory={category}
-          initialTag={tag}
-          initialQuery={query}
-        />
-      </div>
-    </>
+    <ShopClient
+      key={`${category ?? ""}-${tag ?? ""}-${query ?? ""}`}
+      initialCategory={category}
+      initialTag={tag}
+      initialQuery={query}
+    />
   );
 }

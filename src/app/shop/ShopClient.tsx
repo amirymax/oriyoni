@@ -1,19 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/icons";
+import { PageHeader } from "@/components/PageHeader";
 import { ProductGrid } from "@/components/ProductGrid";
+import { useLanguage } from "@/context/LanguageContext";
+import { categoryLabel } from "@/lib/display";
 import { categories, products, type ProductTag } from "@/lib/products";
 
 type CategoryFilter = "All" | (typeof categories)[number];
 type SortId = "newest" | "price-asc" | "price-desc";
-
-const SORTS: { id: SortId; label: string }[] = [
-  { id: "newest", label: "Newest" },
-  { id: "price-asc", label: "Price: Low to High" },
-  { id: "price-desc", label: "Price: High to Low" },
-];
 
 export function ShopClient({
   initialCategory,
@@ -24,6 +21,8 @@ export function ShopClient({
   initialTag?: string;
   initialQuery?: string;
 }) {
+  const { t, count } = useLanguage();
+
   const [category, setCategory] = useState<CategoryFilter>(
     (categories as readonly string[]).includes(initialCategory ?? "")
       ? (initialCategory as CategoryFilter)
@@ -34,8 +33,14 @@ export function ShopClient({
       ? initialTag
       : null
   );
-  const query = initialQuery ?? "";
   const [sort, setSort] = useState<SortId>("newest");
+  const query = initialQuery ?? "";
+
+  const sorts: { id: SortId; label: string }[] = [
+    { id: "newest", label: t.sortNewest },
+    { id: "price-asc", label: t.sortPriceAsc },
+    { id: "price-desc", label: t.sortPriceDesc },
+  ];
 
   const filtered = useMemo(() => {
     let list = products.slice();
@@ -48,7 +53,9 @@ export function ShopClient({
     }
     if (query.trim()) {
       const q = query.trim().toLowerCase();
-      list = list.filter((p) => p.name.toLowerCase().includes(q));
+      list = list.filter((p) =>
+        [p.name.en, p.name.ru].some((n) => n.toLowerCase().includes(q))
+      );
     }
 
     if (sort === "price-asc") list.sort((a, b) => a.price - b.price);
@@ -58,68 +65,73 @@ export function ShopClient({
   }, [category, tag, query, sort]);
 
   return (
-    <div>
-      <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          <FilterPill
-            active={category === "All" && !tag}
-            onClick={() => {
-              setCategory("All");
-              setTag(null);
-            }}
-          >
-            All
-          </FilterPill>
-          {categories.map((c) => (
+    <>
+      <PageHeader title={t.shopTitle} description={t.shopDescription} />
+
+      <div className="container-shell py-10 sm:py-14">
+        <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
             <FilterPill
-              key={c}
-              active={category === c}
+              active={category === "All" && !tag}
               onClick={() => {
-                setCategory(c);
+                setCategory("All");
                 setTag(null);
               }}
             >
-              {c}
+              {t.filterAll}
             </FilterPill>
-          ))}
-          <FilterPill active={tag === "sale"} onClick={() => setTag(tag === "sale" ? null : "sale")}>
-            Sale
-          </FilterPill>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {query && (
-            <p className="text-xs text-ash">
-              Results for <span className="text-ink">&ldquo;{query}&rdquo;</span>{" "}
-              <Link href="/shop" className="underline underline-offset-2 hover:text-ink">
-                Clear
-              </Link>
-            </p>
-          )}
-          <div className="relative">
-            <select
-              aria-label="Sort products"
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortId)}
-              className="cursor-pointer appearance-none border border-line bg-white py-2 pl-3 pr-8 text-xs font-medium uppercase tracking-[0.06em] text-ink focus:outline-none"
+            {categories.map((c) => (
+              <FilterPill
+                key={c}
+                active={category === c}
+                onClick={() => {
+                  setCategory(c);
+                  setTag(null);
+                }}
+              >
+                {categoryLabel(c, t)}
+              </FilterPill>
+            ))}
+            <FilterPill
+              active={tag === "sale"}
+              onClick={() => setTag(tag === "sale" ? null : "sale")}
             >
-              {SORTS.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ash" />
+              {t.navSale}
+            </FilterPill>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {query && (
+              <p className="text-xs text-ash">
+                {t.resultsFor} <span className="text-ink">&ldquo;{query}&rdquo;</span>{" "}
+                <Link href="/shop" className="underline underline-offset-2 hover:text-ink">
+                  {t.resultsClear}
+                </Link>
+              </p>
+            )}
+            <div className="relative">
+              <select
+                aria-label={t.sortLabel}
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortId)}
+                className="cursor-pointer appearance-none border border-line bg-white py-2 pl-3 pr-8 text-xs font-medium uppercase tracking-[0.06em] text-ink focus:outline-none"
+              >
+                {sorts.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ash" />
+            </div>
           </div>
         </div>
+
+        <p className="py-6 text-xs text-ash">{count(filtered.length)}</p>
+
+        <ProductGrid products={filtered} />
       </div>
-
-      <p className="py-6 text-xs text-ash">
-        {filtered.length} {filtered.length === 1 ? "piece" : "pieces"}
-      </p>
-
-      <ProductGrid products={filtered} />
-    </div>
+    </>
   );
 }
 
@@ -130,7 +142,7 @@ function FilterPill({
 }: {
   active: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <button

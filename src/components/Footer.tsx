@@ -1,28 +1,35 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { InstagramIcon, TikTokIcon, TwitterIcon } from "@/components/icons";
-
-const SHOP_LINKS = [
-  { href: "/shop?category=Tees", label: "Tees" },
-  { href: "/shop?category=Hoodies", label: "Hoodies" },
-  { href: "/shop?category=Accessories", label: "Accessories" },
-  { href: "/shop?tag=sale", label: "Sale" },
-];
-
-const HELP_LINKS = [
-  { href: "/contact", label: "Contact Us" },
-  { href: "/shop", label: "Shipping & Returns" },
-  { href: "/shop", label: "Size Guide" },
-  { href: "/cart", label: "Track Order" },
-];
-
-const COMPANY_LINKS = [
-  { href: "/about", label: "Our Story" },
-  { href: "/about", label: "Craft & Materials" },
-  { href: "/contact", label: "Wholesale" },
-];
+import { useLanguage } from "@/context/LanguageContext";
+import { fmt } from "@/lib/i18n";
 
 export function Footer() {
+  const { t } = useLanguage();
+
+  const shopLinks = [
+    { href: "/shop?category=Tees", label: t.navTees },
+    { href: "/shop?category=Hoodies", label: t.navHoodies },
+    { href: "/shop?category=Accessories", label: t.navAccessories },
+    { href: "/shop?tag=sale", label: t.navSale },
+  ];
+
+  const helpLinks = [
+    { href: "/contact", label: t.footerContactUs },
+    { href: "/shop", label: t.footerShippingReturns },
+    { href: "/shop", label: t.footerSizeGuide },
+    { href: "/cart", label: t.footerTrackOrder },
+  ];
+
+  const companyLinks = [
+    { href: "/about", label: t.footerOurStory },
+    { href: "/about", label: t.footerCraft },
+    { href: "/contact", label: t.footerWholesale },
+  ];
+
   return (
     <footer className="bg-black text-white">
       <div className="container-shell grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -30,7 +37,7 @@ export function Footer() {
           <div className="flex items-center gap-3">
             <Image
               src="/brand/oriyoni-mark.png"
-              alt="ORIYONI crest"
+              alt="ORIYONI"
               width={44}
               height={44}
               className="h-11 w-11 rounded-full object-cover"
@@ -38,30 +45,33 @@ export function Footer() {
             <span className="font-crest text-xl tracking-[0.2em] text-white">ORIYONI</span>
           </div>
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/60">
-            Heavyweight tees and hoodies built on quiet confidence. Wear the crown.
+            {t.footerTagline}
           </p>
           <div className="mt-6 flex items-center gap-4 text-white/70">
-            <Link href="#" aria-label="ORIYONI on Instagram" className="hover:text-white">
+            <Link href="#" aria-label={t.footerInstagram} className="hover:text-white">
               <InstagramIcon className="h-5 w-5" />
             </Link>
-            <Link href="#" aria-label="ORIYONI on TikTok" className="hover:text-white">
+            <Link href="#" aria-label={t.footerTikTok} className="hover:text-white">
               <TikTokIcon className="h-5 w-5" />
             </Link>
-            <Link href="#" aria-label="ORIYONI on Twitter" className="hover:text-white">
+            <Link href="#" aria-label={t.footerTwitter} className="hover:text-white">
               <TwitterIcon className="h-5 w-5" />
             </Link>
+          </div>
+          <div className="mt-7">
+            <LanguageSwitcher tone="dark" />
           </div>
         </div>
 
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
-            Shop
+            {t.footerShop}
           </h3>
           <ul className="mt-5 space-y-3">
-            {SHOP_LINKS.map((l) => (
-              <li key={l.label}>
-                <Link href={l.href} className="text-sm text-white/80 hover:text-white">
-                  {l.label}
+            {shopLinks.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
+                  {link.label}
                 </Link>
               </li>
             ))}
@@ -70,13 +80,13 @@ export function Footer() {
 
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
-            Help
+            {t.footerHelp}
           </h3>
           <ul className="mt-5 space-y-3">
-            {HELP_LINKS.map((l) => (
-              <li key={l.label}>
-                <Link href={l.href} className="text-sm text-white/80 hover:text-white">
-                  {l.label}
+            {helpLinks.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
+                  {link.label}
                 </Link>
               </li>
             ))}
@@ -85,13 +95,13 @@ export function Footer() {
 
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
-            Company
+            {t.footerCompany}
           </h3>
           <ul className="mt-5 space-y-3">
-            {COMPANY_LINKS.map((l) => (
-              <li key={l.label}>
-                <Link href={l.href} className="text-sm text-white/80 hover:text-white">
-                  {l.label}
+            {companyLinks.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-sm text-white/80 hover:text-white">
+                  {link.label}
                 </Link>
               </li>
             ))}
@@ -101,8 +111,8 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="container-shell flex flex-col items-center justify-between gap-3 py-6 text-xs text-white/50 sm:flex-row">
-          <p>© {new Date().getFullYear()} ORIYONI. All rights reserved.</p>
-          <p>Designed with intent. Made for the crowned.</p>
+          <p>{fmt(t.footerRights, { year: new Date().getFullYear() })}</p>
+          <p>{t.footerMotto}</p>
         </div>
       </div>
     </footer>
