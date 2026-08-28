@@ -22,14 +22,19 @@ export function Header() {
   const { t, l } = useLanguage();
   const router = useRouter();
 
+  // Desktop nav carries the shopping categories only. Everything to the left
+  // of the centred logo has to fit in half the viewport, and the Russian
+  // labels are much longer than the English ones — "About" lives in the
+  // mobile menu and the footer instead.
   const navLinks = [
     { href: "/shop", label: t.navShopAll },
     { href: "/shop?category=Tees", label: t.navTees },
     { href: "/shop?category=Hoodies", label: t.navHoodies },
     { href: "/shop?category=Accessories", label: t.navAccessories },
     { href: "/shop?tag=sale", label: t.navSale },
-    { href: "/about", label: t.navAbout },
   ];
+
+  const menuLinks = [...navLinks, { href: "/about", label: t.navAbout }];
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -54,7 +59,7 @@ export function Header() {
       {/* Three-column grid keeps the logo centred without the nav ever
           overlapping it, whatever length the translated labels are. */}
       <div className="container-shell grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:h-20 sm:gap-4">
-        <div className="flex min-w-0 items-center lg:hidden">
+        <div className="flex min-w-0 items-center xl:hidden">
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
@@ -67,13 +72,13 @@ export function Header() {
 
         <nav
           aria-label={t.headerNavPrimary}
-          className="hidden min-w-0 items-center gap-4 lg:flex xl:gap-7"
+          className="hidden min-w-0 items-center gap-4 xl:flex 2xl:gap-6"
         >
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="whitespace-nowrap text-[12px] font-medium uppercase tracking-[0.06em] text-ink transition-colors hover:text-graphite xl:text-[13px] xl:tracking-[0.08em]"
+              className="nav-underline whitespace-nowrap py-1 text-[12px] font-medium uppercase tracking-[0.06em] text-ink 2xl:text-[13px] 2xl:tracking-[0.08em]"
             >
               {link.label}
             </Link>
@@ -183,7 +188,7 @@ export function Header() {
       )}
 
       {menuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 xl:hidden">
           <button
             aria-label={t.headerCloseMenu}
             onClick={() => setMenuOpen(false)}
@@ -207,7 +212,7 @@ export function Header() {
             </div>
 
             <nav aria-label={t.headerNavMobile} className="mt-8 flex flex-col gap-6">
-              {navLinks.map((link) => (
+              {menuLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
