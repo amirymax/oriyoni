@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ORIYONI
 
-## Getting Started
+Storefront for ORIYONI — a streetwear label selling heavyweight tees, hoodies
+and accessories. Frontend only; no backend or payment processing yet.
 
-First, run the development server:
+Built with Next.js 16 (App Router), TypeScript and Tailwind CSS v4.
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The site runs at http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script          | Purpose                          |
+| --------------- | -------------------------------- |
+| `npm run dev`   | Development server               |
+| `npm run build` | Production build                 |
+| `npm run start` | Serve the production build       |
+| `npm run lint`  | ESLint                           |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure
 
-## Learn More
+```
+src/
+  app/          Routes (home, shop, product, cart, wishlist, about, contact)
+  components/   Shared UI, garment mockups, flags, icons
+  context/      Cart, wishlist and language providers (localStorage-backed)
+  lib/          Product catalogue, translations, display helpers
+public/brand/   Crown crest logo and generated icons
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Languages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The site ships in **English and Russian**. A flag switcher sits in the header's
+top-right on every page, with a second copy in the footer.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- All copy lives in `src/lib/i18n.ts`; both dictionaries are type-checked
+  against each other, so a missing translation fails the build.
+- Product names, descriptions, details and colours are localized in
+  `src/lib/products.ts`.
+- The choice persists in `localStorage` and falls back to the browser locale.
 
-## Deploy on Vercel
+Page `<title>` metadata is currently English-only, because it is rendered on the
+server before the visitor's language preference is known. Moving language into
+the URL (`/en/…`, `/ru/…`) would make titles and SEO fully bilingual — worth
+doing if organic search matters.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploying to Netlify
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The repo includes `netlify.toml`, so no build settings need to be entered by
+hand.
+
+1. In Netlify: **Add new site → Import an existing project → GitHub**.
+2. Authorise Netlify and pick this repository.
+3. Netlify reads `netlify.toml` (build `npm run build`, publish `.next`,
+   Node 22) and installs the Next.js Runtime. Click **Deploy**.
+
+Every push to the default branch triggers a deploy; pull requests get preview
+deploys.
+
+## Not built yet
+
+Checkout is intentionally disabled — the button is inert and labelled as such
+until payments are connected. Cart and wishlist state is per-browser
+(`localStorage`) and does not sync across devices.
