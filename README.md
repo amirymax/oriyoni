@@ -119,6 +119,35 @@ Adding more than stock is refused, but that is a courtesy check against the
 count as it stands — two shoppers can still both pass it for the last item.
 Checkout is where stock is actually claimed.
 
+### Orders
+
+| Endpoint                   | Method | Purpose                          |
+| -------------------------- | ------ | -------------------------------- |
+| `/api/orders/checkout/`    | POST   | Turn the cart into an order      |
+| `/api/orders/`             | GET    | The signed-in shopper's history  |
+| `/api/orders/{number}/`    | GET    | One of their orders              |
+
+**Guests can buy.** An account is not the price of a purchase — a guest gives
+an email and gets the order back in the response. A signed-in shopper's order
+is attached to their account and shows up in their history; guest orders have
+no account to hang off, so they are not listed anywhere.
+
+Checkout is the only place stock is claimed. It locks the variants, re-checks
+availability inside the transaction, decrements, writes the order and empties
+the cart — all or nothing. If any line cannot be filled the whole order is
+refused and named, rather than a partial one being placed.
+
+Every line **copies** the name, colour, size and price as they stood. Repricing
+or renaming a product does not rewrite an old order, and deleting a variant
+leaves its lines readable.
+
+Shipping is free over $120 and $12 below it, matching the storefront's
+promise. Totals are stored rather than recomputed, so an old order still adds
+up to what was charged after the rules change.
+
+Payments are not connected: orders land as `pending` and move on from the
+admin. That is the seam a payment provider slots into.
+
 ### Accounts
 
 Accounts are keyed by email — there is no username. Signing up needs an email

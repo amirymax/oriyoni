@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "accounts",
     "catalog",
     "cart",
+    "orders",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -149,6 +150,7 @@ REST_FRAMEWORK = {
         "login": env("THROTTLE_LOGIN", default="10/min"),
         "register": env("THROTTLE_REGISTER", default="10/hour"),
         "password_reset": env("THROTTLE_PASSWORD_RESET", default="5/hour"),
+        "checkout": env("THROTTLE_CHECKOUT", default="20/hour"),
     },
     "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
 }
