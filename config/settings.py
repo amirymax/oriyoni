@@ -4,6 +4,7 @@ Every environment-specific value is read from the environment, with defaults
 that are safe for local development only. See .env.example for the full list.
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -45,6 +46,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    # Stores rotated-out refresh tokens so logout can actually revoke them.
+    "rest_framework_simplejwt.token_blacklist",
+    "corsheaders",
     "core",
     "accounts",
 ]
@@ -57,6 +61,9 @@ AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Must precede CommonMiddleware so that preflights get their headers even
+    # when CommonMiddleware would redirect the request.
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -124,6 +131,18 @@ REST_FRAMEWORK = {
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
     # Locked down by default; public endpoints opt out explicitly.
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "accounts.authentication.CookieJWTAuthentication",
+    ],
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {
+        # Guessing a password and mining the reset endpoint are the two attacks
+        # these endpoints invite, so both are rate limited by IP.
+        "login": env("THROTTLE_LOGIN", default="10/min"),
+        "register": env("THROTTLE_REGISTER", default="10/hour"),
+        "password_reset": env("THROTTLE_PASSWORD_RESET", default="5/hour"),
+    },
+    "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
 }
 
 if DEBUG:
@@ -132,3 +151,63 @@ if DEBUG:
         "rest_framework.renderers.JSONRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
     ]
+
+# ---------------------------------------------------------------- tokens --
+
+# Access tokens are short-lived because nothing revokes them individually;
+# refresh tokens rotate and the old one is blacklisted, so a stolen refresh
+# token stops working as soon as the real client next refreshes.
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env.int("ACCESS_TOKEN_MINUTES", default=15)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env.int("REFRESH_TOKEN_DAYS", default=14)),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    # Not UPDATE_LAST_LOGIN: it only applies to SimpleJWT's own obtain-token
+    # serializer, which these views replace. accounts.views stamps it instead.
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+}
+
+# Tokens travel in httpOnly cookies so page JavaScript — and anything injected
+# into it — cannot read them. The browser attaches them automatically, which
+# is why CSRF protection below is not optional.
+AUTH_COOKIE_ACCESS = "oriyoni_access"
+AUTH_COOKIE_REFRESH = "oriyoni_refresh"
+# Off locally, where the storefront talks to http://localhost.
+AUTH_COOKIE_SECURE = env.bool("AUTH_COOKIE_SECURE", default=not DEBUG)
+# "None" is required when the storefront and API sit on different sites, and
+# browsers only honour it together with Secure.
+AUTH_COOKIE_SAMESITE = env("AUTH_COOKIE_SAMESITE", default="Lax")
+AUTH_COOKIE_DOMAIN = env("AUTH_COOKIE_DOMAIN", default=None)
+
+# ------------------------------------------------------------------ CORS --
+
+# The storefront runs on its own origin and must send cookies with each call.
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=["http://localhost:3000"])
+CSRF_COOKIE_SAMESITE = AUTH_COOKIE_SAMESITE
+CSRF_COOKIE_SECURE = AUTH_COOKIE_SECURE
+# Readable by JavaScript on purpose: the storefront echoes it back in the
+# X-CSRFToken header, which is what proves the request came from the page.
+CSRF_COOKIE_HTTPONLY = False
+
+# ----------------------------------------------------------------- email --
+
+# Console in development prints the reset link straight into the runserver log.
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyoni.com>")
+
+# Where password reset links point; the storefront owns that page, not Django.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
+PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 3)

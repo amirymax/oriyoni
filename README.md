@@ -65,6 +65,52 @@ database connectivity — 200 when reachable, 503 when not.
 Settings read from the environment, falling back to development defaults; see
 `.env.example`. `.env` itself is never committed.
 
+### Accounts
+
+Accounts are keyed by email — there is no username. Signing up needs an email
+and a password and signs you straight in; there is no verification step, so the
+only mail the backend sends is a password reset link (in English or Russian,
+whichever the storefront asks for).
+
+| Endpoint                           | Method     | Purpose                          |
+| ---------------------------------- | ---------- | -------------------------------- |
+| `/api/auth/csrf/`                  | GET        | Prime the CSRF cookie            |
+| `/api/auth/register/`              | POST       | Create an account and sign in    |
+| `/api/auth/login/`                 | POST       | Sign in                          |
+| `/api/auth/refresh/`               | POST       | Rotate the token pair            |
+| `/api/auth/logout/`                | POST       | Revoke the refresh token         |
+| `/api/auth/me/`                    | GET, PATCH | Read or edit the profile         |
+| `/api/auth/password/change/`       | POST       | Change a known password          |
+| `/api/auth/password/reset/`        | POST       | Request a reset link             |
+| `/api/auth/password/reset/confirm/`| POST       | Set a new password from the link |
+
+Errors always come back in one shape, so the storefront needs a single code
+path to render them:
+
+```json
+{ "detail": "The submitted data was not valid.", "errors": { "email": ["…"] } }
+```
+
+**Tokens live in httpOnly cookies.** Page JavaScript cannot read them, which
+takes token theft off the table for cross-site scripting — but the browser then
+attaches them to any request, so every write must also carry a CSRF token:
+
+1. `GET /api/auth/csrf/` once, which sets a readable `csrftoken` cookie.
+2. Send it back as an `X-CSRFToken` header on every POST/PATCH/DELETE.
+3. Use `credentials: "include"` so the cookies travel at all.
+
+Reads need no token. An `Authorization: Bearer …` header also works and skips
+the CSRF check, which is the path for curl and server-to-server calls.
+
+Access tokens last 15 minutes; refresh tokens last 14 days, rotate on use, and
+the spent one is blacklisted so it cannot be replayed. Login, registration and
+password reset are rate limited per IP.
+
+If the storefront and API end up on different sites in production, set
+`AUTH_COOKIE_SAMESITE=None` and `AUTH_COOKIE_SECURE=True` — browsers reject
+`None` without `Secure`. Putting both behind one parent domain and setting
+`AUTH_COOKIE_DOMAIN` lets you keep the stricter `Lax` default.
+
 ## Languages
 
 The site ships in **English and Russian**. A flag switcher sits in the header's
