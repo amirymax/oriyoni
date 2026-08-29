@@ -1,46 +1,50 @@
 # ORIYONI
 
 Storefront for ORIYONI — a streetwear label selling heavyweight tees, hoodies
-and accessories. Frontend only; no backend or payment processing yet.
+and accessories.
 
-Built with Next.js 16 (App Router), TypeScript and Tailwind CSS v4.
+A Next.js 16 frontend (App Router, TypeScript, Tailwind CSS v4) in `frontend/`,
+and a Django + Postgres API at the repository root.
 
 ## Getting started
 
 ```bash
-npm install
-npm run dev
+npm --prefix frontend install
+npm --prefix frontend run dev
 ```
 
 The site runs at http://localhost:3000.
 
-| Script          | Purpose                          |
-| --------------- | -------------------------------- |
-| `npm run dev`   | Development server               |
-| `npm run build` | Production build                 |
-| `npm run start` | Serve the production build       |
-| `npm run lint`  | ESLint                           |
+| Script                            | Purpose                    |
+| --------------------------------- | -------------------------- |
+| `npm --prefix frontend run dev`   | Development server         |
+| `npm --prefix frontend run build` | Production build           |
+| `npm --prefix frontend run start` | Serve the production build |
+| `npm --prefix frontend run lint`  | ESLint                     |
 
 ## Structure
 
 ```
-src/
-  app/          Routes (home, shop, product, cart, wishlist, about, contact)
-  components/   Shared UI, garment mockups, flags, icons
-  context/      Cart, wishlist and language providers (localStorage-backed)
-  lib/          Product catalogue, translations, display helpers
-public/brand/   Crown crest logo and generated icons
+frontend/            Next.js storefront
+  src/app/           Routes (home, shop, product, cart, wishlist, about, contact)
+  src/components/    Shared UI, garment mockups, flags, icons
+  src/context/       Cart, wishlist and language providers
+  src/lib/           Product catalogue, translations, display helpers
+  public/brand/      Crown crest logo and generated icons
 ```
+
+The Django API is being built at the repository root; this README grows a
+backend section as it lands.
 
 ## Languages
 
 The site ships in **English and Russian**. A flag switcher sits in the header's
 top-right on every page, with a second copy in the footer.
 
-- All copy lives in `src/lib/i18n.ts`; both dictionaries are type-checked
-  against each other, so a missing translation fails the build.
+- All copy lives in `frontend/src/lib/i18n.ts`; both dictionaries are
+  type-checked against each other, so a missing translation fails the build.
 - Product names, descriptions, details and colours are localized in
-  `src/lib/products.ts`.
+  `frontend/src/lib/products.ts`.
 - The choice persists in `localStorage` and falls back to the browser locale.
 
 Page `<title>` metadata is currently English-only, because it is rendered on the
@@ -55,8 +59,12 @@ hand.
 
 1. In Netlify: **Add new site → Import an existing project → GitHub**.
 2. Authorise Netlify and pick this repository.
-3. Netlify reads `netlify.toml` (build `npm run build`, publish `.next`,
-   Node 22) and installs the Next.js Runtime. Click **Deploy**.
+3. Netlify reads `netlify.toml` — base directory `frontend`, build
+   `npm run build`, publish `.next`, Node 22 — and installs the Next.js
+   Runtime. Click **Deploy**.
+
+Because the base directory is `frontend`, Netlify only builds the storefront;
+the Django backend at the root is deployed separately.
 
 Every push to the default branch triggers a deploy; pull requests get preview
 deploys.
