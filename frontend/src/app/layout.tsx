@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cinzel, Manrope, Syne } from "next/font/google";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import { BottomTabBar } from "@/components/BottomTabBar";
 import { CartDrawer } from "@/components/CartDrawer";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -57,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <main className="flex-1">{children}</main>
                 <Footer />
                 <CartDrawer />
+                <BottomTabBar />
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>

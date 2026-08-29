@@ -24,6 +24,26 @@ import type { Product } from "@/lib/products";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Escape closes the mobile menu, matching the scrim and the close button.
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
+  // Hold the page still underneath while the panel is out.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [menuOpen]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { count: cartCount, openCart } = useCart();
@@ -51,6 +71,7 @@ export function Header() {
     isSignedIn
       ? { href: "/account", label: t.authAccount }
       : { href: "/login", label: t.authSignIn },
+    { href: "/contact", label: t.navContact },
   ];
 
   const [results, setResults] = useState<Product[]>([]);
@@ -87,10 +108,17 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-paper">
+    <header
+      className="sticky top-0 z-40 border-b border-line bg-paper"
+      style={{ viewTransitionName: "site-header" }}
+    >
       {/* Three-column grid keeps the logo centred without the nav ever
           overlapping it, whatever length the translated labels are. */}
-      <div className="container-shell grid h-16 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:h-20 sm:gap-4">
+      {/* Below xl the burger and the brand share the left edge; from xl the nav
+          takes column one and the brand recentres. The hidden element in each
+          case drops out of the grid entirely, so both layouts use three
+          columns and the brand never needs rendering twice. */}
+      <div className="container-shell grid h-16 grid-cols-[auto_auto_1fr] items-center gap-2 sm:h-20 sm:gap-4 xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
         <div className="flex min-w-0 items-center xl:hidden">
           <button
             type="button"
@@ -120,7 +148,7 @@ export function Header() {
         <Link
           href="/"
           aria-label={t.headerHome}
-          className="flex items-center justify-self-center gap-2.5"
+          className="flex items-center gap-2 sm:gap-2.5 xl:justify-self-center"
         >
           <Image
             src="/brand/oriyoni-mark.png"
@@ -128,9 +156,12 @@ export function Header() {
             width={40}
             height={40}
             priority
-            className="h-9 w-9 rounded-full object-cover sm:h-10 sm:w-10"
+            className="h-8 w-8 rounded-full object-cover sm:h-10 sm:w-10"
           />
-          <span className="font-crest hidden text-lg tracking-[0.2em] text-ink sm:block">
+          {/* Set in the crest face, matching the wordmark under the crown in
+              the logo. Held back on very narrow phones, where the header runs
+              out of room before the actions on the right. */}
+          <span className="font-crest hidden text-[13px] tracking-[0.14em] text-ink min-[380px]:block sm:text-lg sm:tracking-[0.2em]">
             ORIYONI
           </span>
         </Link>
@@ -149,7 +180,7 @@ export function Header() {
           <Link
             href="/wishlist"
             aria-label={fmt(t.headerWishlistLabel, { n: wishlistCount })}
-            className="relative hidden cursor-pointer p-2 text-ink sm:inline-flex"
+            className="relative hidden cursor-pointer p-2 text-ink md:inline-flex"
           >
             <HeartIcon className="h-5 w-5" />
             {wishlistCount > 0 && (
@@ -161,7 +192,7 @@ export function Header() {
           <Link
             href={isSignedIn ? "/account" : "/login"}
             aria-label={isSignedIn ? t.authAccount : t.authSignIn}
-            className="cursor-pointer p-1.5 text-ink sm:p-2"
+            className="hidden cursor-pointer p-1.5 text-ink md:inline-flex md:p-2"
           >
             <UserIcon className="h-5 w-5" />
           </Link>
@@ -169,7 +200,7 @@ export function Header() {
             type="button"
             onClick={openCart}
             aria-label={fmt(t.headerCartLabel, { n: cartCount })}
-            className="relative cursor-pointer p-1.5 text-ink sm:p-2"
+            className="relative hidden cursor-pointer p-1.5 text-ink md:inline-flex md:p-2"
           >
             <CartIcon className="h-5 w-5" />
             {cartCount > 0 && (
@@ -226,59 +257,52 @@ export function Header() {
         </div>
       )}
 
-      {menuOpen && (
-        <div className="fixed inset-0 z-50 xl:hidden">
-          <button
-            aria-label={t.headerCloseMenu}
-            onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 cursor-pointer bg-ink/40"
-          />
-          <div className="absolute inset-y-0 left-0 flex w-[80%] max-w-xs flex-col bg-white p-6">
-            <div className="flex items-center justify-between">
-              <span className="font-crest text-base tracking-[0.2em] text-ink">ORIYONI</span>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                aria-label={t.headerCloseMenu}
-                className="cursor-pointer p-1 text-ink"
-              >
-                <CloseIcon className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="mt-6">
-              <LanguageSwitcher />
-            </div>
-
-            <nav aria-label={t.headerNavMobile} className="mt-8 flex flex-col gap-6">
-              {menuLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="text-base font-medium uppercase tracking-[0.08em] text-ink"
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <Link
-                href="/wishlist"
-                onClick={() => setMenuOpen(false)}
-                className="text-base font-medium uppercase tracking-[0.08em] text-ink"
-              >
-                {t.navWishlist}
-              </Link>
-              <Link
-                href="/contact"
-                onClick={() => setMenuOpen(false)}
-                className="text-base font-medium uppercase tracking-[0.08em] text-ink"
-              >
-                {t.navContact}
-              </Link>
-            </nav>
+      {/* Mounted at all times so the closing slide has something to animate,
+          mirroring the cart drawer. `inert` keeps it out of tab order and the
+          accessibility tree while shut. */}
+      <div className="drawer-root xl:hidden" data-open={menuOpen} inert={!menuOpen}>
+        <button
+          aria-label={t.headerCloseMenu}
+          tabIndex={menuOpen ? undefined : -1}
+          onClick={() => setMenuOpen(false)}
+          className="drawer-scrim cursor-pointer"
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.headerNavMobile}
+          className="drawer-panel drawer-panel-left flex w-[80%] max-w-xs flex-col bg-white p-6"
+        >
+          <div className="flex items-center justify-between">
+            <span className="font-crest text-base tracking-[0.2em] text-ink">ORIYONI</span>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              aria-label={t.headerCloseMenu}
+              className="cursor-pointer p-1 text-ink"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
           </div>
+
+          <div className="mt-6">
+            <LanguageSwitcher />
+          </div>
+
+          <nav aria-label={t.headerNavMobile} className="mt-8 flex flex-col gap-6">
+            {menuLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-base font-medium uppercase tracking-[0.08em] text-ink"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
-      )}
+      </div>
     </header>
   );
 }

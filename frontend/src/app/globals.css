@@ -72,6 +72,18 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 2px;
 }
 
+/* Text fields already show focus: the caret sits in them and their own border
+   darkens. The ring stacked a second, boxier outline on top of that, which on
+   a full-width field read as a long rectangle. Buttons and links keep it.
+   This has to be unlayered like the rule above — each field's Tailwind
+   `focus:outline-none` lives in @layer utilities, which loses to any unlayered
+   rule no matter how specific it is. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -136,5 +148,223 @@ h1, h2, h3, h4, h5, h6 {
 @media (prefers-reduced-motion: reduce) {
   .nav-underline::after {
     transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   One set of tokens so every transition on the site shares a rhythm. Exits are
+   deliberately quicker than entrances: leaving content should get out of the
+   way, arriving content should have a beat to register.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --motion-exit: 200ms;
+  --motion-enter: 320ms;
+  --motion-page-exit: 140ms;
+  --motion-page-enter: 220ms;
+  --motion-page-move: 320ms;
+
+  /* Decelerate on arrival, accelerate on departure. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-soft: cubic-bezier(0.55, 0, 1, 0.45);
+}
+
+/* --- Page transitions ------------------------------------------------------
+   Driven by <ViewTransition> in src/app/template.tsx. Content fades and lifts
+   slightly; the surrounding chrome is anchored below so only the page moves. */
+
+@keyframes page-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes page-rise {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+::view-transition-old(.page-exit) {
+  animation:
+    var(--motion-page-exit) ease-in both page-fade reverse,
+    var(--motion-page-move) var(--ease-in-soft) both page-rise reverse;
+}
+
+::view-transition-new(.page-enter) {
+  animation:
+    var(--motion-page-enter) ease-out var(--motion-page-exit) both page-fade,
+    var(--motion-page-move) var(--ease-out-soft) both page-rise;
+}
+
+/* The transition overlay would otherwise swallow clicks mid-animation. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* Header, promo bar and footer are shared chrome — hold them still so the
+   reader keeps a fixed spatial anchor while the page content moves. */
+::view-transition-group(site-header),
+::view-transition-group(site-announcement),
+::view-transition-group(site-footer) {
+  animation: none;
+  z-index: 100;
+}
+
+::view-transition-old(site-header),
+::view-transition-old(site-announcement),
+::view-transition-old(site-footer) {
+  display: none;
+}
+
+::view-transition-new(site-header),
+::view-transition-new(site-announcement),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+/* --- Cart drawer -----------------------------------------------------------
+   Slides in from the right edge and back out the same way. The panel stays
+   mounted and is transitioned rather than unmounted, so the closing animation
+   has something to animate; `visibility` is transitioned alongside `transform`
+   so the panel stays painted for the whole slide-out, then goes hidden. */
+
+.drawer-root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.drawer-root[data-open="false"] {
+  pointer-events: none;
+}
+
+.drawer-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 10 10 / 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--motion-exit) var(--ease-in-soft),
+    visibility var(--motion-exit);
+}
+
+.drawer-panel {
+  position: absolute;
+  inset-block: 0;
+  right: 0;
+  transform: translateX(100%);
+  visibility: hidden;
+  will-change: transform;
+  transition:
+    transform var(--motion-exit) var(--ease-in-soft),
+    visibility var(--motion-exit);
+}
+
+.drawer-root[data-open="true"] .drawer-scrim {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--motion-enter) var(--ease-out-soft),
+    visibility var(--motion-enter);
+}
+
+.drawer-root[data-open="true"] .drawer-panel {
+  transform: translateX(0);
+  visibility: visible;
+  transition:
+    transform var(--motion-enter) var(--ease-out-soft),
+    visibility var(--motion-enter);
+}
+
+/* Left-hand variant, used by the mobile menu: same motion, mirrored. Must come
+   after the base rule — it overrides the closed-state transform at equal
+   specificity, so source order decides. */
+.drawer-panel-left {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+/* The blanket reduced-motion rule above cannot reach view-transition
+   pseudo-elements — they sit outside the document tree — so silence them here. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* --- Mobile tab bar --------------------------------------------------------
+   A floating, phone-only tab bar in the iOS idiom. The height is published as
+   a variable so the footer can reserve exactly the same space underneath and
+   the bar never covers real content. */
+
+:root {
+  --tab-bar-height: 60px;
+  --tab-bar-gap: 10px;
+}
+
+.tab-bar {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  padding-inline: 12px;
+  /* Clear of the home indicator on notched phones. */
+  padding-bottom: calc(var(--tab-bar-gap) + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+
+.tab-bar > * {
+  pointer-events: auto;
+}
+
+.tab-bar-surface {
+  border-radius: 26px;
+  padding: 6px;
+  background: rgb(253 253 251 / 0.72);
+  border: 1px solid rgb(10 10 10 / 0.07);
+  box-shadow:
+    0 1px 1px rgb(10 10 10 / 0.04),
+    0 12px 32px rgb(10 10 10 / 0.14);
+  /* The blur is the point of the material: content stays legible while the
+     page scrolls visibly underneath it. */
+  /* Prefixed first, standard last: the minifier treats these as one property
+     and keeps whichever comes last, which silently dropped the standard one
+     (and the blur in Firefox) when the order was reversed. */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Without backdrop-filter the panel would be a washed-out translucent slab, so
+   fall back to a near-opaque surface and keep the text contrast. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .tab-bar-surface {
+    background: rgb(253 253 251 / 0.98);
+  }
+}
+
+/* The footer is the last thing on every page, so it carries the inset — its
+   own background then runs behind the bar instead of a strip of bare paper. */
+.tab-bar-inset {
+  padding-bottom: calc(
+    var(--tab-bar-height) + var(--tab-bar-gap) * 2 + env(safe-area-inset-bottom, 0px)
+  );
+}
+
+@media (min-width: 768px) {
+  .tab-bar-inset {
+    padding-bottom: 0;
   }
 }

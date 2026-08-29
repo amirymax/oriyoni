@@ -1,8 +1,14 @@
 export type Lang = "en" | "ru";
 
-export const LANGUAGES: { id: Lang; label: string; endonym: string }[] = [
-  { id: "en", label: "English", endonym: "English" },
-  { id: "ru", label: "Russian", endonym: "Русский" },
+export const LANGUAGES: {
+  id: Lang;
+  label: string;
+  endonym: string;
+  /** Two-letter badge shown in the switcher. */
+  short: string;
+}[] = [
+  { id: "en", label: "English", endonym: "English", short: "EN" },
+  { id: "ru", label: "Russian", endonym: "Русский", short: "РУ" },
 ];
 
 /** A value that exists in every supported language. */
@@ -46,6 +52,14 @@ const en = {
   headerWishlistLabel: "Wishlist, {n} items",
   headerNavPrimary: "Primary",
   headerNavMobile: "Mobile",
+
+  // Bottom tab bar (mobile). Labels are kept to one short word so four fit
+  // across a phone without truncating.
+  tabBarLabel: "Primary",
+  tabShop: "Shop",
+  tabCart: "Cart",
+  tabWishlist: "Saved",
+  tabAccount: "Account",
 
   // Language switcher
   langSwitchLabel: "Language",
@@ -346,6 +360,13 @@ const ru: Dict = {
   headerWishlistLabel: "Избранное, товаров: {n}",
   headerNavPrimary: "Основная навигация",
   headerNavMobile: "Мобильная навигация",
+
+  // Bottom tab bar (mobile)
+  tabBarLabel: "Основная навигация",
+  tabShop: "Каталог",
+  tabCart: "Корзина",
+  tabWishlist: "Избранное",
+  tabAccount: "Профиль",
 
   // Language switcher
   langSwitchLabel: "Язык",

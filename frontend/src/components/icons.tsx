@@ -19,6 +19,17 @@ export function SearchIcon(props: IconProps) {
   );
 }
 
+export function ShopIcon(props: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" {...base} {...props}>
+      <rect x="3.75" y="3.75" width="7" height="7" rx="1.6" />
+      <rect x="13.25" y="3.75" width="7" height="7" rx="1.6" />
+      <rect x="3.75" y="13.25" width="7" height="7" rx="1.6" />
+      <rect x="13.25" y="13.25" width="7" height="7" rx="1.6" />
+    </svg>
+  );
+}
+
 export function CartIcon(props: IconProps) {
   return (
     <svg viewBox="0 0 24 24" {...base} {...props}>

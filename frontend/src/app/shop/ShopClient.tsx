@@ -117,7 +117,7 @@ export function ShopClient({
                 aria-label={t.sortLabel}
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortId)}
-                className="cursor-pointer appearance-none border border-line bg-white py-2 pl-3 pr-8 text-xs font-medium uppercase tracking-[0.06em] text-ink focus:outline-none"
+                className="cursor-pointer appearance-none border border-line bg-white py-2 pl-3 pr-8 text-xs font-medium uppercase tracking-[0.06em] text-ink focus:border-ink focus:outline-none"
               >
                 {sorts.map((s) => (
                   <option key={s.id} value={s.id}>

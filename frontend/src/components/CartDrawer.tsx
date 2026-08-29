@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { CloseIcon, MinusIcon, PlusIcon } from "@/components/icons";
 import { GarmentMockup } from "@/components/mockups/GarmentMockup";
 import { useCart } from "@/context/CartContext";
@@ -12,18 +13,45 @@ export function CartDrawer() {
   const { lines, isOpen, closeCart, updateQuantity, removeItem, subtotal } = useCart();
   const { t, l, price } = useLanguage();
 
-  if (!isOpen) return null;
+  // Escape closes the drawer, matching the scrim and the close button.
+  useEffect(() => {
+    if (!isOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") closeCart();
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isOpen, closeCart]);
+
+  // Hold the page still underneath, so the panel is the only thing moving.
+  useEffect(() => {
+    if (!isOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isOpen]);
 
   const itemCount = lines.reduce((n, line) => n + line.quantity, 0);
 
   return (
-    <div className="fixed inset-0 z-50">
+    // The drawer stays mounted so the closing slide has something to animate.
+    // `inert` keeps the closed panel out of tab order and the accessibility
+    // tree, which unmounting used to handle for us.
+    <div className="drawer-root" data-open={isOpen} inert={!isOpen}>
       <button
         aria-label={t.cartClose}
+        tabIndex={isOpen ? undefined : -1}
         onClick={closeCart}
-        className="absolute inset-0 cursor-pointer bg-ink/40"
+        className="drawer-scrim cursor-pointer"
       />
-      <div className="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.cartTitle}
+        className="drawer-panel flex w-full max-w-md flex-col bg-white"
+      >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="text-sm font-semibold uppercase tracking-[0.1em] text-ink">
             {fmt(t.cartDrawerTitle, { n: itemCount })}
