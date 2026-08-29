@@ -5,7 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { CartIcon, CloseIcon, HeartIcon, MenuIcon, SearchIcon } from "@/components/icons";
+import {
+  CartIcon,
+  CloseIcon,
+  HeartIcon,
+  MenuIcon,
+  SearchIcon,
+  UserIcon,
+} from "@/components/icons";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -18,6 +26,7 @@ export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { count: cartCount, openCart } = useCart();
+  const { isSignedIn } = useAuth();
   const { count: wishlistCount } = useWishlist();
   const { t, l } = useLanguage();
   const router = useRouter();
@@ -34,7 +43,14 @@ export function Header() {
     { href: "/shop?tag=sale", label: t.navSale },
   ];
 
-  const menuLinks = [...navLinks, { href: "/about", label: t.navAbout }];
+  const menuLinks = [
+    ...navLinks,
+    { href: "/about", label: t.navAbout },
+    { href: "/wishlist", label: t.navWishlist },
+    isSignedIn
+      ? { href: "/account", label: t.authAccount }
+      : { href: "/login", label: t.authSignIn },
+  ];
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -125,6 +141,13 @@ export function Header() {
                 {wishlistCount}
               </span>
             )}
+          </Link>
+          <Link
+            href={isSignedIn ? "/account" : "/login"}
+            aria-label={isSignedIn ? t.authAccount : t.authSignIn}
+            className="cursor-pointer p-1.5 text-ink sm:p-2"
+          >
+            <UserIcon className="h-5 w-5" />
           </Link>
           <button
             type="button"
