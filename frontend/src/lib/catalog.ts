@@ -41,7 +41,7 @@ function toColor(color: ApiProduct["colors"][number]): ProductColor {
   };
 }
 
-function toProduct(payload: ApiProduct): Product {
+export function toProduct(payload: ApiProduct): Product {
   return {
     slug: payload.slug,
     name: payload.name,

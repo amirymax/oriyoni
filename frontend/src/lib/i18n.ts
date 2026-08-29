@@ -192,6 +192,7 @@ const en = {
   // Wishlist
   wishlistTitle: "Wishlist",
   wishlistEmpty: "Nothing saved yet.",
+  wishlistError: "Could not load your wishlist. Check your connection and try again.",
   wishlistCta: "Browse the Collection",
 
   // About
@@ -491,6 +492,7 @@ const ru: Dict = {
   // Wishlist
   wishlistTitle: "Избранное",
   wishlistEmpty: "Пока ничего не сохранено.",
+  wishlistError: "Не удалось загрузить избранное. Проверьте соединение и попробуйте снова.",
   wishlistCta: "Перейти в каталог",
 
   // About

@@ -4,36 +4,59 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { ProductGrid } from "@/components/ProductGrid";
+import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { fetchProducts } from "@/lib/catalog";
+import { api, type ApiProduct } from "@/lib/api";
+import { fetchProducts, toProduct } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 
 export default function WishlistPage() {
   const { slugs } = useWishlist();
+  const { status } = useAuth();
   const { t } = useLanguage();
-  const [catalogue, setCatalogue] = useState<Product[] | null>(null);
+  const [superset, setSuperset] = useState<Product[] | null>(null);
+  const [failed, setFailed] = useState(false);
 
-  // The saved list is slugs; the grid needs whole products. Fetching the
-  // catalogue once and filtering beats a request per saved item.
+  // Signed in, the wishlist endpoint already returns full product payloads
+  // for exactly what was saved. Signed out, saves only exist as slugs in
+  // localStorage, so the whole catalogue has to be fetched and filtered.
   useEffect(() => {
+    if (status === "loading") return;
+
     let cancelled = false;
-    fetchProducts()
-      .then((all) => !cancelled && setCatalogue(all))
-      .catch(() => !cancelled && setCatalogue([]));
+    setSuperset(null);
+    setFailed(false);
+
+    const request =
+      status === "authenticated"
+        ? api<ApiProduct[]>("/api/wishlist/").then((items) => items.map(toProduct))
+        : fetchProducts();
+
+    request
+      .then((products) => !cancelled && setSuperset(products))
+      .catch(() => {
+        if (!cancelled) {
+          setSuperset([]);
+          setFailed(true);
+        }
+      });
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [status]);
 
-  const saved = (catalogue ?? []).filter((product) => slugs.includes(product.slug));
+  const saved = (superset ?? []).filter((product) => slugs.includes(product.slug));
 
   return (
     <>
       <PageHeader title={t.wishlistTitle} />
       <div className="container-shell py-10 sm:py-14">
-        {catalogue === null ? (
+        {superset === null ? (
           <p className="py-20 text-center text-sm text-ash">{t.authWorking}</p>
+        ) : failed ? (
+          <p className="py-20 text-center text-sm text-ash">{t.wishlistError}</p>
         ) : saved.length === 0 ? (
           <div className="flex flex-col items-center gap-5 py-20 text-center">
             <p className="text-sm text-ash">{t.wishlistEmpty}</p>
