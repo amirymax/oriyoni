@@ -28,7 +28,11 @@ class CookieJWTAuthentication(JWTAuthentication):
 
         if header is None:
             raw_token = request.COOKIES.get(settings.AUTH_COOKIE_ACCESS)
-            if raw_token is None:
+            # Empty as well as missing: signing out deletes the cookie by
+            # setting it to "", and a client that echoes that back must be
+            # treated as anonymous rather than as holding a broken token —
+            # otherwise the whole site answers 401 to a signed-out visitor.
+            if not raw_token:
                 return None
             from_cookie = True
         else:

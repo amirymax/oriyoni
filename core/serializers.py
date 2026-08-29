@@ -10,7 +10,9 @@ class LocalizedField(serializers.Field):
 
     def __init__(self, prefix, **kwargs):
         self.prefix = prefix
-        kwargs["source"] = "*"
+        # Defaults to the object being serialized, but callers can point at a
+        # related one — a cart line reads its names off `variant.product`.
+        kwargs.setdefault("source", "*")
         kwargs["read_only"] = True
         super().__init__(**kwargs)
 

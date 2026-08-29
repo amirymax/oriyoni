@@ -6,24 +6,6 @@ from rest_framework.test import APIClient
 from catalog.models import Category, Color, Product, ProductVariant
 
 
-@pytest.fixture(autouse=True)
-def _empty_catalogue(request, db):
-    """Start from an empty catalogue rather than the seeded one.
-
-    The seed data migration runs when the test database is built, so every
-    test would otherwise open with eleven products in it and any assertion
-    about counts or ordering would be about the seed, not the case at hand.
-    Tests that are specifically about the seed carry @pytest.mark.seeded.
-    """
-    if "seeded" in request.keywords:
-        return
-
-    ProductVariant.objects.all().delete()
-    Product.objects.all().delete()
-    Color.objects.all().delete()
-    Category.objects.all().delete()
-
-
 @pytest.fixture
 def api():
     return APIClient()

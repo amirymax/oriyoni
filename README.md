@@ -91,6 +91,34 @@ variant is buyable; the counts themselves stay in the admin.
 Field names are snake_case throughout, and prices are numbers rather than
 DRF's default decimal strings.
 
+### Cart
+
+| Endpoint                  | Method       | Purpose                    |
+| ------------------------- | ------------ | -------------------------- |
+| `/api/cart/`              | GET          | The current cart           |
+| `/api/cart/`              | DELETE       | Empty it                   |
+| `/api/cart/items/`        | POST         | Add `{sku, quantity}`      |
+| `/api/cart/items/{id}/`   | PATCH        | Set a line's quantity (`0` removes it) |
+| `/api/cart/items/{id}/`   | DELETE       | Remove a line              |
+
+Every response is the whole cart, so a client never has to reconcile a patch
+against its own state.
+
+Carts work signed in or not. A guest cart is found by an opaque token in an
+httpOnly cookie; a signed-in one hangs off the account and follows the shopper
+between devices. **Signing in merges the two** — quantities add up, capped at
+stock — because shopping first and signing in at checkout is the normal order.
+The merge is a receiver on a sign-in signal, so `accounts` stays unaware that a
+shop exists.
+
+Carts are created lazily, so browsing leaves no rows behind, and lines read
+prices live from the catalogue: a cart is a wish, not a contract. Prices are
+frozen only when an order is placed.
+
+Adding more than stock is refused, but that is a courtesy check against the
+count as it stands — two shoppers can still both pass it for the last item.
+Checkout is where stock is actually claimed.
+
 ### Accounts
 
 Accounts are keyed by email — there is no username. Signing up needs an email

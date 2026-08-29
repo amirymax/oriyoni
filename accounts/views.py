@@ -20,19 +20,25 @@ from accounts.serializers import (
     RegisterSerializer,
     UserSerializer,
 )
+from accounts.signals import user_signed_in
 
 
-def _session_response(user, status_code=status.HTTP_200_OK, mark_login=False):
+def _session_response(user, status_code=status.HTTP_200_OK, mark_login=False, request=None):
     """Serialize the account and attach a freshly issued token pair.
 
-    `mark_login` stamps last_login. SimpleJWT's UPDATE_LAST_LOGIN only fires
-    from its own obtain-token serializer, which these views do not use, so
-    without this the field would stay empty forever — and it feeds Django's
-    password reset token, where a stale value weakens the link's expiry.
-    Refreshing a token is not a login, so only the sign-in paths pass it.
+    `mark_login` stamps last_login and announces the sign-in. SimpleJWT's
+    UPDATE_LAST_LOGIN only fires from its own obtain-token serializer, which
+    these views do not use, so without this the field would stay empty forever
+    — and it feeds Django's password reset token, where a stale value weakens
+    the link's expiry. Refreshing a token is not a login, so only the sign-in
+    paths pass it.
+
+    The signal is what lets the shop fold a guest cart into the account
+    without authentication having to know the shop exists.
     """
     if mark_login:
         update_last_login(None, user)
+        user_signed_in.send(sender=user.__class__, request=request, user=user)
 
     refresh = RefreshToken.for_user(user)
     response = Response(UserSerializer(user).data, status=status_code)
@@ -73,7 +79,7 @@ class RegisterView(APIView):
         user = serializer.save()
         # Signing straight in: with no email verification step there is nothing
         # to wait for, and bouncing to a login form would be busywork.
-        return _session_response(user, status.HTTP_201_CREATED, mark_login=True)
+        return _session_response(user, status.HTTP_201_CREATED, mark_login=True, request=request)
 
 
 @csrf_protected
@@ -84,7 +90,9 @@ class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        return _session_response(serializer.validated_data["user"], mark_login=True)
+        return _session_response(
+            serializer.validated_data["user"], mark_login=True, request=request
+        )
 
 
 @csrf_protected
@@ -200,4 +208,4 @@ class PasswordResetConfirmView(APIView):
 
         # Changing the password changes the token generator's input, so the
         # link that got here is now dead and cannot be reused.
-        return _session_response(user, mark_login=True)
+        return _session_response(user, mark_login=True, request=request)

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "core",
     "accounts",
     "catalog",
+    "cart",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
