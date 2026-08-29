@@ -65,6 +65,32 @@ database connectivity — 200 when reachable, 503 when not.
 Settings read from the environment, falling back to development defaults; see
 `.env.example`. `.env` itself is never committed.
 
+### Catalogue
+
+Products live in Postgres and are managed from the Django admin. The eleven
+products the storefront used to hardcode are loaded by a data migration, so a
+fresh database comes up stocked and browsable.
+
+| Endpoint                  | Purpose                                     |
+| ------------------------- | ------------------------------------------- |
+| `/api/products/`          | List, with `category`, `tag`, `on_sale`, `search`, `ordering` |
+| `/api/products/{slug}/`   | One product, plus its copy and variants     |
+| `/api/categories/`        | Categories in navigation order              |
+
+Both are public and read-only; lists are paginated (`count`, `results`).
+
+Bilingual text is stored as paired `name_en` / `name_ru` columns and served as
+`{"en": …, "ru": …}` — the storefront's `Localized<T>` — so switching language
+costs no round trip. There is no translation package and no locale
+negotiation.
+
+Stock lives on the **variant** (a product in one colour and one size), because
+that is what a shopper picks and what runs out. The API reports only whether a
+variant is buyable; the counts themselves stay in the admin.
+
+Field names are snake_case throughout, and prices are numbers rather than
+DRF's default decimal strings.
+
 ### Accounts
 
 Accounts are keyed by email — there is no username. Signing up needs an email

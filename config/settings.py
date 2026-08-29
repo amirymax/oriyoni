@@ -45,12 +45,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Registers the lookups the catalogue's ArrayField columns rely on.
+    "django.contrib.postgres",
     "rest_framework",
     # Stores rotated-out refresh tokens so logout can actually revoke them.
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "core",
     "accounts",
+    "catalog",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -134,6 +137,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "accounts.authentication.CookieJWTAuthentication",
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    # Large enough that today's catalogue arrives in one call, bounded so a
+    # grown one cannot be asked for all at once.
+    "PAGE_SIZE": 48,
     "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
     "DEFAULT_THROTTLE_RATES": {
         # Guessing a password and mining the reset endpoint are the two attacks

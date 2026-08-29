@@ -15,9 +15,12 @@ select = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["accounts", "config", "core"]
+known-first-party = ["accounts", "catalog", "config", "core"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py"]
 addopts = "--reuse-db --strict-markers"
+markers = [
+    "seeded: keep the catalogue the seed migration created instead of emptying it",
+]

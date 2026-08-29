@@ -1,0 +1,458 @@
+{
+  "categories": [
+    {
+      "slug": "tees",
+      "name_en": "Tees",
+      "name_ru": "Футболки",
+      "position": 0
+    },
+    {
+      "slug": "hoodies",
+      "name_en": "Hoodies",
+      "name_ru": "Худи",
+      "position": 1
+    },
+    {
+      "slug": "accessories",
+      "name_en": "Accessories",
+      "name_ru": "Аксессуары",
+      "position": 2
+    }
+  ],
+  "colors": [
+    {
+      "slug": "black",
+      "name_en": "Black",
+      "name_ru": "Чёрный",
+      "hex": "#0a0a0a",
+      "is_dark": true
+    },
+    {
+      "slug": "charcoal",
+      "name_en": "Charcoal",
+      "name_ru": "Графитовый",
+      "hex": "#2a2a26",
+      "is_dark": true
+    },
+    {
+      "slug": "bone",
+      "name_en": "Bone",
+      "name_ru": "Молочный",
+      "hex": "#efe9db",
+      "is_dark": false
+    },
+    {
+      "slug": "natural",
+      "name_en": "Natural",
+      "name_ru": "Натуральный",
+      "hex": "#e4d8bd",
+      "is_dark": false
+    }
+  ],
+  "products": [
+    {
+      "slug": "crown-emblem-tee",
+      "name_en": "Crown Emblem Tee",
+      "name_ru": "Футболка Crown Emblem",
+      "category": "tees",
+      "garment": "tee",
+      "price": "48.00",
+      "compare_at_price": null,
+      "tags": [
+        "bestseller"
+      ],
+      "description_en": "The signature ORIYONI tee. Heavyweight 240gsm combed cotton with the crest embroidered at the chest.",
+      "description_ru": "Фирменная футболка ORIYONI. Плотный чёсаный хлопок 240 г/м² с вышитым гербом на груди.",
+      "details_en": [
+        "240gsm combed cotton jersey",
+        "Embroidered crown crest",
+        "Boxy, relaxed fit",
+        "Reinforced collar seam"
+      ],
+      "details_ru": [
+        "Джерси из чёсаного хлопка, 240 г/м²",
+        "Вышитый герб-корона",
+        "Свободный прямой крой",
+        "Усиленный шов горловины"
+      ],
+      "colors": [
+        "black",
+        "bone"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 0
+    },
+    {
+      "slug": "heavyweight-essential-tee",
+      "name_en": "Heavyweight Essential Tee",
+      "name_ru": "Футболка Essential Heavyweight",
+      "category": "tees",
+      "garment": "tee",
+      "price": "42.00",
+      "compare_at_price": "52.00",
+      "tags": [
+        "sale"
+      ],
+      "description_en": "A no-logo staple built from the same heavyweight cotton as the rest of the line. Made to be worn on repeat.",
+      "description_ru": "База без логотипа из того же плотного хлопка, что и вся линейка. Создана, чтобы носить её постоянно.",
+      "details_en": [
+        "230gsm combed cotton",
+        "Clean chest, no branding",
+        "Dropped shoulder seam",
+        "Garment dyed for depth"
+      ],
+      "details_ru": [
+        "Чёсаный хлопок, 230 г/м²",
+        "Чистая грудь, без брендинга",
+        "Приспущенная линия плеча",
+        "Окраска в готовом виде для глубины цвета"
+      ],
+      "colors": [
+        "black",
+        "charcoal"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 1
+    },
+    {
+      "slug": "regal-script-tee",
+      "name_en": "Regal Script Tee",
+      "name_ru": "Футболка Regal Script",
+      "category": "tees",
+      "garment": "tee",
+      "price": "46.00",
+      "compare_at_price": null,
+      "tags": [
+        "new"
+      ],
+      "description_en": "A back-print script wordmark paired with the crest at the chest. Part of the Fall capsule.",
+      "description_ru": "Шрифтовой принт на спине в паре с гербом на груди. Часть осенней капсулы.",
+      "details_en": [
+        "220gsm combed cotton",
+        "Puff-print back script",
+        "Embroidered chest crest",
+        "Regular fit"
+      ],
+      "details_ru": [
+        "Чёсаный хлопок, 220 г/м²",
+        "Объёмная печать со шрифтом на спине",
+        "Вышитый герб на груди",
+        "Классическая посадка"
+      ],
+      "colors": [
+        "black"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 2
+    },
+    {
+      "slug": "oversized-crest-tee",
+      "name_en": "Oversized Crest Tee",
+      "name_ru": "Футболка Crest Oversized",
+      "category": "tees",
+      "garment": "tee",
+      "price": "50.00",
+      "compare_at_price": "60.00",
+      "tags": [
+        "sale"
+      ],
+      "description_en": "Drop-shoulder, oversized block fit with an oversized woven crest label at the hem.",
+      "description_ru": "Оверсайз с приспущенным плечом и крупным тканым ярлыком-гербом по низу.",
+      "details_en": [
+        "250gsm heavyweight cotton",
+        "Oversized boxy fit",
+        "Woven hem crest label",
+        "Pre-shrunk fabric"
+      ],
+      "details_ru": [
+        "Плотный хлопок, 250 г/м²",
+        "Оверсайз прямого кроя",
+        "Тканый ярлык с гербом по низу",
+        "Предусадочная ткань"
+      ],
+      "colors": [
+        "bone",
+        "black"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 3
+    },
+    {
+      "slug": "signature-crown-hoodie",
+      "name_en": "Signature Crown Hoodie",
+      "name_ru": "Худи Signature Crown",
+      "category": "hoodies",
+      "garment": "hoodie",
+      "price": "88.00",
+      "compare_at_price": null,
+      "tags": [
+        "bestseller",
+        "new"
+      ],
+      "description_en": "The house hoodie. Brushed fleece interior with an embroidered crest and ribbed cuffs built to hold shape.",
+      "description_ru": "Главное худи бренда. Начёс изнутри, вышитый герб и манжеты-резинки, которые держат форму.",
+      "details_en": [
+        "420gsm brushed fleece",
+        "Embroidered crown crest",
+        "Ribbed cuffs and hem",
+        "Kangaroo pocket"
+      ],
+      "details_ru": [
+        "Начёсанный флис, 420 г/м²",
+        "Вышитый герб-корона",
+        "Резинка на манжетах и по низу",
+        "Карман-кенгуру"
+      ],
+      "colors": [
+        "black",
+        "bone"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 4
+    },
+    {
+      "slug": "heavyweight-pullover-hoodie",
+      "name_en": "Heavyweight Pullover Hoodie",
+      "name_ru": "Худи Heavyweight Pullover",
+      "category": "hoodies",
+      "garment": "hoodie",
+      "price": "96.00",
+      "compare_at_price": null,
+      "tags": [],
+      "description_en": "Maximum weight, minimum branding. A dense double-lined hood and a fit built for layering.",
+      "description_ru": "Максимум плотности, минимум брендинга. Плотный капюшон на двойной подкладке и посадка под многослойность.",
+      "details_en": [
+        "450gsm double-lined fleece",
+        "Double-lined hood",
+        "Dropped shoulder",
+        "Clean face, tonal label"
+      ],
+      "details_ru": [
+        "Двухслойный флис, 450 г/м²",
+        "Капюшон на двойной подкладке",
+        "Приспущенное плечо",
+        "Чистый перёд, тональный ярлык"
+      ],
+      "colors": [
+        "black"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 5
+    },
+    {
+      "slug": "zip-crest-hoodie",
+      "name_en": "Zip Crest Hoodie",
+      "name_ru": "Худи Zip Crest",
+      "category": "hoodies",
+      "garment": "hoodie",
+      "price": "102.00",
+      "compare_at_price": "120.00",
+      "tags": [
+        "sale"
+      ],
+      "description_en": "Full-zip construction with the crest embroidered above the left chest pocket.",
+      "description_ru": "Худи на молнии во всю длину с гербом, вышитым над левым нагрудным карманом.",
+      "details_en": [
+        "400gsm brushed fleece",
+        "Full metal zip",
+        "Embroidered crest",
+        "Zippered hand pockets"
+      ],
+      "details_ru": [
+        "Начёсанный флис, 400 г/м²",
+        "Металлическая молния во всю длину",
+        "Вышитый герб",
+        "Боковые карманы на молнии"
+      ],
+      "colors": [
+        "charcoal"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 6
+    },
+    {
+      "slug": "oversized-monarch-hoodie",
+      "name_en": "Oversized Monarch Hoodie",
+      "name_ru": "Худи Monarch Oversized",
+      "category": "hoodies",
+      "garment": "hoodie",
+      "price": "108.00",
+      "compare_at_price": null,
+      "tags": [
+        "new"
+      ],
+      "description_en": "Our heaviest silhouette — an oversized block fit with an oversized back crest print.",
+      "description_ru": "Самый плотный силуэт в линейке — оверсайз с крупным принтом-гербом на спине.",
+      "details_en": [
+        "460gsm heavyweight fleece",
+        "Oversized boxy fit",
+        "Oversized back crest print",
+        "Extended rib cuffs"
+      ],
+      "details_ru": [
+        "Плотный флис, 460 г/м²",
+        "Оверсайз прямого кроя",
+        "Крупный принт с гербом на спине",
+        "Удлинённые манжеты-резинки"
+      ],
+      "colors": [
+        "black",
+        "bone"
+      ],
+      "sizes": [
+        "XS",
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "position": 7
+    },
+    {
+      "slug": "crown-dad-cap",
+      "name_en": "Crown Dad Cap",
+      "name_ru": "Кепка Crown Dad",
+      "category": "accessories",
+      "garment": "cap",
+      "price": "32.00",
+      "compare_at_price": null,
+      "tags": [],
+      "description_en": "Low-profile six-panel cap with the crest embroidered at the front and an adjustable strap.",
+      "description_ru": "Кепка с низким профилем и шестью панелями, вышитый герб спереди и регулируемый ремешок.",
+      "details_en": [
+        "Six-panel construction",
+        "Embroidered crown crest",
+        "Adjustable strap closure",
+        "Curved brim"
+      ],
+      "details_ru": [
+        "Шестипанельная конструкция",
+        "Вышитый герб-корона",
+        "Регулируемый ремешок",
+        "Изогнутый козырёк"
+      ],
+      "colors": [
+        "black",
+        "bone"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "position": 8
+    },
+    {
+      "slug": "crest-beanie",
+      "name_en": "Crest Beanie",
+      "name_ru": "Шапка Crest",
+      "category": "accessories",
+      "garment": "beanie",
+      "price": "28.00",
+      "compare_at_price": null,
+      "tags": [
+        "new"
+      ],
+      "description_en": "Ribbed knit beanie with a woven crest patch folded into the cuff.",
+      "description_ru": "Вязаная шапка в рубчик с тканой нашивкой-гербом на отвороте.",
+      "details_en": [
+        "Ribbed acrylic knit",
+        "Woven crest patch",
+        "Fold-cuff construction",
+        "One size fits most"
+      ],
+      "details_ru": [
+        "Акриловая вязка в рубчик",
+        "Тканая нашивка с гербом",
+        "Конструкция с отворотом",
+        "Универсальный размер"
+      ],
+      "colors": [
+        "black"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "position": 9
+    },
+    {
+      "slug": "canvas-tote",
+      "name_en": "Canvas Tote",
+      "name_ru": "Шоппер Canvas",
+      "category": "accessories",
+      "garment": "tote",
+      "price": "26.00",
+      "compare_at_price": null,
+      "tags": [],
+      "description_en": "Heavy 16oz canvas tote with the crest printed at the face. Built to carry the rest of the line.",
+      "description_ru": "Плотный шоппер из канваса 16 унций с печатным гербом. Создан, чтобы носить остальную линейку.",
+      "details_en": [
+        "16oz heavyweight canvas",
+        "Printed crown crest",
+        "Reinforced stitched handles",
+        "Interior pocket"
+      ],
+      "details_ru": [
+        "Плотный канвас, 16 унций",
+        "Печатный герб-корона",
+        "Усиленные прошитые ручки",
+        "Внутренний карман"
+      ],
+      "colors": [
+        "natural"
+      ],
+      "sizes": [
+        "One Size"
+      ],
+      "position": 10
+    }
+  ]
+}
