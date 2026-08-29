@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   CartIcon,
@@ -19,7 +19,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { categoryLabel } from "@/lib/display";
 import { fmt } from "@/lib/i18n";
-import { products } from "@/lib/products";
+import { fetchProducts } from "@/lib/catalog";
+import type { Product } from "@/lib/products";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -52,14 +53,29 @@ export function Header() {
       : { href: "/login", label: t.authSignIn },
   ];
 
-  const results = useMemo(() => {
-    if (!query.trim()) return [];
-    const q = query.trim().toLowerCase();
-    return products
-      .filter((p) =>
-        [p.name.en, p.name.ru].some((n) => n.toLowerCase().includes(q))
-      )
-      .slice(0, 5);
+  const [results, setResults] = useState<Product[]>([]);
+
+  // Searching in the database rather than over a copy of the catalogue in the
+  // bundle, so results stay right as products are added. Debounced, because
+  // this fires on every keystroke.
+  useEffect(() => {
+    const term = query.trim();
+    let cancelled = false;
+
+    const timer = setTimeout(() => {
+      if (!term) {
+        setResults([]);
+        return;
+      }
+      fetchProducts({ search: term })
+        .then((found) => !cancelled && setResults(found.slice(0, 5)))
+        .catch(() => !cancelled && setResults([]));
+    }, 200);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query]);
 
   function submitSearch(e: React.FormEvent) {

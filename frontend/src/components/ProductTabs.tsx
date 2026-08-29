@@ -1,16 +1,30 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProductGrid } from "@/components/ProductGrid";
 import { useLanguage } from "@/context/LanguageContext";
-import { products } from "@/lib/products";
+import { fetchProducts } from "@/lib/catalog";
+import type { Product } from "@/lib/products";
 
 const TAB_IDS = ["new", "sale", "bestseller"] as const;
 type TabId = (typeof TAB_IDS)[number];
 
 export function ProductTabs() {
   const [active, setActive] = useState<TabId>("new");
+  const [products, setProducts] = useState<Product[]>([]);
   const { t } = useLanguage();
+
+  // The home page is a client component, so this section fetches its own
+  // slice rather than the whole page becoming server-rendered.
+  useEffect(() => {
+    let cancelled = false;
+    fetchProducts()
+      .then((all) => !cancelled && setProducts(all))
+      .catch(() => !cancelled && setProducts([]));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const labels: Record<TabId, string> = {
     new: t.tabNew,
@@ -18,10 +32,7 @@ export function ProductTabs() {
     bestseller: t.tabBestseller,
   };
 
-  const filtered = useMemo(
-    () => products.filter((p) => p.tags.includes(active)),
-    [active]
-  );
+  const filtered = products.filter((p) => p.tags.includes(active));
 
   return (
     <div>

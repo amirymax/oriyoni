@@ -10,19 +10,22 @@ import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { categoryLabel, sizeLabel } from "@/lib/display";
+import type { ProductWithVariants } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
+import { ApiError } from "@/lib/api";
 
 export function ProductDetailClient({
   product,
   related,
 }: {
-  product: Product;
+  product: ProductWithVariants;
   related: Product[];
 }) {
   const [colorIndex, setColorIndex] = useState(0);
   const [size, setSize] = useState(product.sizes[0]);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [openSection, setOpenSection] = useState<"details" | "shipping" | null>(
     "details"
   );
@@ -39,23 +42,30 @@ export function ProductDetailClient({
       ? Math.round(100 - (product.price / product.compareAtPrice) * 100)
       : null;
 
-  function handleAddToCart() {
-    addItem(
-      {
-        slug: product.slug,
-        name: product.name,
-        price: product.price,
-        colorId: color.id,
-        colorName: color.name,
-        size,
-        garment: product.garment,
-        swatchHex: color.hex,
-        swatchDark: color.dark,
-      },
-      quantity
-    );
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
+  // The cart is keyed by SKU, which is the product in this colour and this
+  // size — the thing that actually has stock behind it.
+  const variant = product.variants.find(
+    (v) => v.color === color.id && v.size === size
+  );
+  const soldOut = !variant || !variant.in_stock;
+
+  async function handleAddToCart() {
+    if (!variant) return;
+    setError(null);
+
+    try {
+      await addItem(variant.sku, quantity);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (caught) {
+      // Usually "only two left" — the shop knows the real count, this page
+      // only knows what it was told when it loaded.
+      setError(
+        caught instanceof ApiError
+          ? (caught.errors.quantity?.[0] ?? caught.message)
+          : t.authOffline
+      );
+    }
   }
 
   return (
@@ -176,9 +186,12 @@ export function ProductDetailClient({
               <button
                 type="button"
                 onClick={handleAddToCart}
-                className="flex flex-1 cursor-pointer items-center justify-center gap-2 bg-ink py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-charcoal"
+                disabled={soldOut}
+                className="flex flex-1 cursor-pointer items-center justify-center gap-2 bg-ink py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-charcoal disabled:cursor-not-allowed disabled:opacity-40"
               >
-                {added ? (
+                {soldOut ? (
+                  t.pdpSoldOut
+                ) : added ? (
                   <>
                     <CheckIcon className="h-4 w-4" aria-hidden="true" /> {t.pdpAdded}
                   </>
@@ -197,6 +210,12 @@ export function ProductDetailClient({
                 <HeartIcon filled={saved} className="h-4.5 w-4.5" />
               </button>
             </div>
+
+            {error ? (
+              <p role="alert" className="mt-3 text-xs text-red-700">
+                {error}
+              </p>
+            ) : null}
 
             <div className="mt-10 divide-y divide-line border-y border-line">
               <Accordion

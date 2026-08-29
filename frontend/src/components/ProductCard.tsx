@@ -9,10 +9,12 @@ import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { fmt } from "@/lib/i18n";
+import { fetchProduct } from "@/lib/catalog";
 import type { Product } from "@/lib/products";
 
 export function ProductCard({ product }: { product: Product }) {
   const [colorIndex, setColorIndex] = useState(0);
+  const [adding, setAdding] = useState(false);
   const { addItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const { t, l, price } = useLanguage();
@@ -23,6 +25,24 @@ export function ProductCard({ product }: { product: Product }) {
     product.compareAtPrice != null
       ? Math.round(100 - (product.price / product.compareAtPrice) * 100)
       : null;
+
+  // The list payload leaves variants out to stay small, so the SKU for this
+  // colour in the first available size is fetched only when someone actually
+  // reaches for quick add.
+  async function quickAdd() {
+    setAdding(true);
+    try {
+      const detail = await fetchProduct(product.slug);
+      const variant = detail?.variants.find(
+        (v) => v.color === color.id && v.in_stock
+      );
+      if (variant) await addItem(variant.sku);
+    } catch {
+      // Nothing to say on a card; the product page reports properly.
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
     <div className="group relative flex flex-col">
@@ -83,22 +103,11 @@ export function ProductCard({ product }: { product: Product }) {
 
         <button
           type="button"
-          onClick={() =>
-            addItem({
-              slug: product.slug,
-              name: product.name,
-              price: product.price,
-              colorId: color.id,
-              colorName: color.name,
-              size: product.sizes[0],
-              garment: product.garment,
-              swatchHex: color.hex,
-              swatchDark: color.dark,
-            })
-          }
-          className="absolute inset-x-3 bottom-3 translate-y-12 cursor-pointer bg-ink py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-white opacity-0 transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 md:inline-block"
+          onClick={quickAdd}
+          disabled={adding}
+          className="absolute inset-x-3 bottom-3 translate-y-12 cursor-pointer bg-ink py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-white opacity-0 transition-all duration-200 ease-out group-hover:translate-y-0 group-hover:opacity-100 disabled:cursor-wait md:inline-block"
         >
-          {t.quickAdd}
+          {adding ? t.authWorking : t.quickAdd}
         </button>
       </div>
 

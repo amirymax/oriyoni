@@ -7,16 +7,19 @@ import { PageHeader } from "@/components/PageHeader";
 import { ProductGrid } from "@/components/ProductGrid";
 import { useLanguage } from "@/context/LanguageContext";
 import { categoryLabel } from "@/lib/display";
-import { categories, products, type ProductTag } from "@/lib/products";
+import { categories, type Product, type ProductTag } from "@/lib/products";
 
 type CategoryFilter = "All" | (typeof categories)[number];
 type SortId = "newest" | "price-asc" | "price-desc";
 
 export function ShopClient({
+  products,
   initialCategory,
   initialTag,
   initialQuery,
 }: {
+  /** Fetched by the page so the first paint already has the grid. */
+  products: Product[];
   initialCategory?: string;
   initialTag?: string;
   initialQuery?: string;
@@ -62,7 +65,7 @@ export function ShopClient({
     if (sort === "price-desc") list.sort((a, b) => b.price - a.price);
 
     return list;
-  }, [category, tag, query, sort]);
+  }, [products, category, tag, query, sort]);
 
   return (
     <>

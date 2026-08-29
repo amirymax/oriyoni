@@ -157,6 +157,7 @@ const en = {
   pdpSize: "Size",
   pdpAddToCart: "Add to Cart",
   pdpAdded: "Added",
+  pdpSoldOut: "Sold Out",
   pdpDetails: "Details & Care",
   pdpShipping: "Shipping & Returns",
   pdpShippingCopy:
@@ -430,6 +431,7 @@ const ru: Dict = {
   pdpSize: "Размер",
   pdpAddToCart: "В корзину",
   pdpAdded: "Добавлено",
+  pdpSoldOut: "Распродано",
   pdpDetails: "Состав и уход",
   pdpShipping: "Доставка и возврат",
   pdpShippingCopy:
