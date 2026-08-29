@@ -119,6 +119,33 @@ Adding more than stock is refused, but that is a courtesy check against the
 count as it stands — two shoppers can still both pass it for the last item.
 Checkout is where stock is actually claimed.
 
+### Wishlist, newsletter and contact
+
+| Endpoint                        | Method | Auth | Purpose                    |
+| ------------------------------- | ------ | ---- | -------------------------- |
+| `/api/wishlist/`                | GET    | yes  | Saved products, in full    |
+| `/api/wishlist/`                | POST   | yes  | Save `{slug}`              |
+| `/api/wishlist/{slug}/`         | DELETE | yes  | Unsave                     |
+| `/api/wishlist/sync/`           | POST   | yes  | Merge `{slugs}` from localStorage |
+| `/api/newsletter/`              | POST   | no   | Subscribe `{email, language}` |
+| `/api/newsletter/unsubscribe/`  | POST   | no   | Unsubscribe `{token}`      |
+| `/api/contact/`                 | POST   | no   | `{name, email, subject, message, language}` |
+
+The wishlist **needs an account**, unlike the cart: the point of saving
+something is that it outlives the browser. Guests keep theirs in
+`localStorage` and push it up through `sync/` after signing in, which adds
+rather than replaces so another device's saves are not wiped.
+
+Newsletter and contact are open to passers-by and rate limited per IP, since an
+unauthenticated write endpoint is exactly what a spam script looks for.
+Subscribing is idempotent and gives the same answer either way, so the form
+cannot be used to test whether an address is on the list. Every subscriber gets
+an opaque unsubscribe token for mailing footers.
+
+A contact message is saved first and the shop is notified second, best effort —
+a mail server having a bad day must not tell the visitor their message failed,
+or they will send it twice.
+
 ### Orders
 
 | Endpoint                   | Method | Purpose                          |

@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     "catalog",
     "cart",
     "orders",
+    "wishlist",
+    "engagement",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -151,6 +153,9 @@ REST_FRAMEWORK = {
         "register": env("THROTTLE_REGISTER", default="10/hour"),
         "password_reset": env("THROTTLE_PASSWORD_RESET", default="5/hour"),
         "checkout": env("THROTTLE_CHECKOUT", default="20/hour"),
+        # Newsletter and contact are unauthenticated write endpoints,
+        # which is exactly what a spam script looks for.
+        "engagement": env("THROTTLE_ENGAGEMENT", default="10/hour"),
     },
     "EXCEPTION_HANDLER": "core.exceptions.exception_handler",
 }
@@ -217,6 +222,8 @@ EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyoni.com>")
+# Where the contact form lands.
+CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.com")
 
 # Where password reset links point; the storefront owns that page, not Django.
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")

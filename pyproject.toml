@@ -15,7 +15,16 @@ select = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["accounts", "cart", "catalog", "config", "core", "orders"]
+known-first-party = [
+    "accounts",
+    "cart",
+    "catalog",
+    "config",
+    "core",
+    "engagement",
+    "orders",
+    "wishlist",
+]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
