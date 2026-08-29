@@ -186,8 +186,8 @@ const en = {
   cartDiscount: "Discount",
   cartTotal: "Total",
   cartCheckout: "Proceed to Checkout",
-  cartCheckoutNote: "Checkout opens once payments are connected.",
-  cartCheckoutTitle: "Checkout will be enabled once payments are connected",
+  cartCheckoutNote: "Payment is arranged by email before your order ships.",
+  cartCheckoutTitle: "Go to checkout",
 
   // Wishlist
   wishlistTitle: "Wishlist",
@@ -289,6 +289,31 @@ const en = {
   authRequired: "Sign in to see this page.",
   authGenericError: "Something went wrong. Please try again.",
   authOffline: "Could not reach the store. Check your connection and try again.",
+
+  // Checkout
+  checkoutTitle: "Checkout",
+  checkoutDescription: "Where should we send it?",
+  checkoutContact: "Contact",
+  checkoutShippingHeading: "Shipping Address",
+  checkoutName: "Full Name",
+  checkoutLine1: "Address",
+  checkoutLine2: "Apartment, suite (optional)",
+  checkoutCity: "City",
+  checkoutPostalCode: "Postcode",
+  checkoutCountry: "Country",
+  checkoutCountryHint: "Two-letter code, e.g. GB",
+  checkoutPhone: "Phone (optional)",
+  checkoutNote: "Order Note (optional)",
+  checkoutSummary: "Order Summary",
+  checkoutPlaceOrder: "Place Order",
+  checkoutEmpty: "There is nothing in your bag to check out.",
+  checkoutPaymentPending:
+    "Payments are not connected yet. Your order is recorded and we will email you to arrange payment before it ships.",
+  orderPlacedTitle: "Order Placed",
+  orderPlacedCopy:
+    "Thank you. A confirmation is on its way to {email}. Keep order {number} for your records.",
+  orderStatus: "Status",
+  orderTotalLabel: "Total",
 } as const;
 
 export type Dict = Record<keyof typeof en, string>;
@@ -460,9 +485,8 @@ const ru: Dict = {
   cartDiscount: "Скидка",
   cartTotal: "Итого",
   cartCheckout: "Перейти к оплате",
-  cartCheckoutNote: "Оплата откроется после подключения платёжной системы.",
-  cartCheckoutTitle:
-    "Оплата станет доступна после подключения платёжной системы",
+  cartCheckoutNote: "Об оплате договоримся по почте до отправки заказа.",
+  cartCheckoutTitle: "Перейти к оформлению",
 
   // Wishlist
   wishlistTitle: "Избранное",
@@ -563,6 +587,31 @@ const ru: Dict = {
   authRequired: "Войдите, чтобы увидеть эту страницу.",
   authGenericError: "Что-то пошло не так. Попробуйте ещё раз.",
   authOffline: "Не удалось связаться с магазином. Проверьте соединение.",
+
+  // Checkout
+  checkoutTitle: "Оформление",
+  checkoutDescription: "Куда доставить заказ?",
+  checkoutContact: "Контакты",
+  checkoutShippingHeading: "Адрес доставки",
+  checkoutName: "Имя и фамилия",
+  checkoutLine1: "Адрес",
+  checkoutLine2: "Квартира, офис (необязательно)",
+  checkoutCity: "Город",
+  checkoutPostalCode: "Индекс",
+  checkoutCountry: "Страна",
+  checkoutCountryHint: "Код из двух букв, например RU",
+  checkoutPhone: "Телефон (необязательно)",
+  checkoutNote: "Комментарий к заказу (необязательно)",
+  checkoutSummary: "Ваш заказ",
+  checkoutPlaceOrder: "Оформить заказ",
+  checkoutEmpty: "В корзине нет товаров для оформления.",
+  checkoutPaymentPending:
+    "Оплата пока не подключена. Заказ сохранён — мы напишем вам, чтобы договориться об оплате до отправки.",
+  orderPlacedTitle: "Заказ оформлен",
+  orderPlacedCopy:
+    "Спасибо. Подтверждение придёт на {email}. Сохраните номер заказа {number}.",
+  orderStatus: "Статус",
+  orderTotalLabel: "Итого",
 };
 
 export const dictionaries: Record<Lang, Dict> = { en, ru };

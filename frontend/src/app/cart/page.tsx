@@ -151,14 +151,13 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <button
-                type="button"
+              <Link
+                href="/checkout"
                 title={t.cartCheckoutTitle}
-                className="mt-6 w-full cursor-not-allowed bg-ink/40 py-3.5 text-xs font-semibold uppercase tracking-[0.12em] text-white"
-                disabled
+                className="mt-6 block w-full cursor-pointer bg-ink py-3.5 text-center text-xs font-semibold uppercase tracking-[0.12em] text-white transition-opacity hover:opacity-85"
               >
                 {t.cartCheckout}
-              </button>
+              </Link>
               <p className="mt-3 text-center text-[11px] text-ash">
                 {t.cartCheckoutNote}
               </p>
