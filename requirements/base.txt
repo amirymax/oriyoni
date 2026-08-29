@@ -1,0 +1,5 @@
+# Runtime dependencies, shared by every environment.
+Django==5.2.17
+djangorestframework==3.18.0
+django-environ==0.14.0
+psycopg[binary]==3.3.4

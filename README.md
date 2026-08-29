@@ -25,6 +25,10 @@ The site runs at http://localhost:3000.
 ## Structure
 
 ```
+config/              Django project (settings, URLs, WSGI/ASGI)
+core/                Shared building blocks and the health probe
+requirements/        base.txt (runtime), dev.txt (tests and linting)
+docker-compose.yml   Local Postgres
 frontend/            Next.js storefront
   src/app/           Routes (home, shop, product, cart, wishlist, about, contact)
   src/components/    Shared UI, garment mockups, flags, icons
@@ -33,8 +37,33 @@ frontend/            Next.js storefront
   public/brand/      Crown crest logo and generated icons
 ```
 
-The Django API is being built at the repository root; this README grows a
-backend section as it lands.
+## Backend
+
+Django 5.2 and Django REST Framework on Postgres. Locally the database runs in
+Docker; production points `DATABASE_URL` at a real server.
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements/dev.txt
+cp .env.example .env
+docker compose up -d          # Postgres on localhost:5432
+.venv/bin/python manage.py migrate
+.venv/bin/python manage.py runserver
+```
+
+The API answers at http://localhost:8000/api/ and `GET /api/health/` reports
+database connectivity — 200 when reachable, 503 when not.
+
+| Command                       | Purpose                       |
+| ----------------------------- | ----------------------------- |
+| `.venv/bin/pytest`            | Test suite (needs Postgres up) |
+| `.venv/bin/ruff check .`      | Lint                          |
+| `.venv/bin/ruff format .`     | Format                        |
+| `docker compose down`         | Stop Postgres (keeps data)    |
+| `docker compose down -v`      | Stop and wipe the database    |
+
+Settings read from the environment, falling back to development defaults; see
+`.env.example`. `.env` itself is never committed.
 
 ## Languages
 

@@ -1,0 +1,23 @@
+# Local development database only. Production runs Postgres on the server,
+# configured through DATABASE_URL.
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: oriyoni-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-oriyoni}
+      POSTGRES_USER: ${POSTGRES_USER:-oriyoni}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oriyoni}
+    ports:
+      # Override POSTGRES_PORT if 5432 is already taken on the host.
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-oriyoni} -d ${POSTGRES_DB:-oriyoni}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
