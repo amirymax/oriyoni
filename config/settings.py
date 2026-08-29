@@ -46,7 +46,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "core",
+    "accounts",
 ]
+
+AUTH_USER_MODEL = "accounts.User"
+
+# Matches the lookup to how addresses are stored, making login
+# case-insensitive. See accounts.backends.EmailBackend.
+AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
