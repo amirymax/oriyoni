@@ -1,0 +1,5 @@
+# What the server installs. No test or lint tooling.
+-r base.txt
+
+gunicorn==26.2.0
+whitenoise==6.12.0

@@ -8,32 +8,53 @@ and a Django + Postgres API at the repository root.
 
 ## Getting started
 
+The storefront needs the API running, so start the backend first.
+
 ```bash
+# Backend
+python3 -m venv .venv
+.venv/bin/pip install -r requirements/dev.txt
+cp .env.example .env
+docker compose up -d                      # Postgres on localhost:5432
+.venv/bin/python manage.py migrate        # also seeds the catalogue
+.venv/bin/python manage.py runserver      # API on :8000
+
+# Storefront, in a second terminal
 npm --prefix frontend install
-npm --prefix frontend run dev
+npm --prefix frontend run dev             # site on :3000
 ```
 
-The site runs at http://localhost:3000.
+The site runs at http://localhost:3000 and the API at http://localhost:8000.
+Create an admin login with `.venv/bin/python manage.py createsuperuser` and
+manage the shop at http://localhost:8000/admin/.
 
-| Script                            | Purpose                    |
-| --------------------------------- | -------------------------- |
-| `npm --prefix frontend run dev`   | Development server         |
-| `npm --prefix frontend run build` | Production build           |
-| `npm --prefix frontend run start` | Serve the production build |
-| `npm --prefix frontend run lint`  | ESLint                     |
+| Script                            | Purpose                        |
+| --------------------------------- | ------------------------------ |
+| `npm --prefix frontend run dev`   | Storefront development server  |
+| `npm --prefix frontend run build` | Production build               |
+| `npm --prefix frontend run lint`  | ESLint                         |
+| `.venv/bin/pytest`                | Backend tests (needs Postgres) |
+| `.venv/bin/ruff check .`          | Backend lint                   |
 
 ## Structure
 
 ```
 config/              Django project (settings, URLs, WSGI/ASGI)
-core/                Shared building blocks and the health probe
-requirements/        base.txt (runtime), dev.txt (tests and linting)
+core/                Shared building blocks, health probe, error shape
+accounts/            Email-keyed users, JWT cookie auth, password reset
+catalog/             Products, variants, colours, categories
+cart/                Server-side carts, guest and signed-in
+orders/              Checkout and order history
+wishlist/            Saved products
+engagement/          Newsletter and contact form
+requirements/        base.txt, dev.txt, prod.txt
 docker-compose.yml   Local Postgres
+Dockerfile           The backend image
 frontend/            Next.js storefront
-  src/app/           Routes (home, shop, product, cart, wishlist, about, contact)
+  src/app/           Routes (home, shop, product, cart, checkout, account, …)
   src/components/    Shared UI, garment mockups, flags, icons
-  src/context/       Cart, wishlist and language providers
-  src/lib/           Product catalogue, translations, display helpers
+  src/context/       Auth, cart, wishlist and language providers
+  src/lib/           API client, catalogue adapter, translations
   public/brand/      Crown crest logo and generated icons
 ```
 
@@ -236,6 +257,51 @@ Page `<title>` metadata is currently English-only, because it is rendered on the
 server before the visitor's language preference is known. Moving language into
 the URL (`/en/…`, `/ru/…`) would make titles and SEO fully bilingual — worth
 doing if organic search matters.
+
+## Deploying the backend
+
+The backend is a Docker image; the storefront is built by Netlify from
+`frontend/`. They deploy independently.
+
+```bash
+docker build -t oriyoni-backend .
+docker run --env-file .env -p 8000:8000 oriyoni-backend
+```
+
+Static files are collected into the image at build time and served by
+WhiteNoise, so nothing in front of Django needs to know where they live. Run
+migrations against the production database on each release:
+
+```bash
+docker run --env-file .env oriyoni-backend python manage.py migrate
+```
+
+### What production must set
+
+| Variable                | Why                                                    |
+| ----------------------- | ------------------------------------------------------ |
+| `DJANGO_SECRET_KEY`     | Generate one; the default is a development placeholder |
+| `DJANGO_DEBUG`          | `False`                                                |
+| `DJANGO_ALLOWED_HOSTS`  | The API's own hostname                                 |
+| `DATABASE_URL`          | The real Postgres server                               |
+| `FRONTEND_URL`          | Where password reset links point                       |
+| `CORS_ALLOWED_ORIGINS`  | The storefront's origin                                |
+| `CSRF_TRUSTED_ORIGINS`  | The same                                               |
+| `EMAIL_*`               | An SMTP server, or reset emails go nowhere             |
+
+With `DJANGO_DEBUG=False` the security settings switch on by themselves: HTTPS
+redirect, HSTS, secure cookies, and the browsable API off. `manage.py check
+--deploy` is clean apart from HSTS subdomains and preload, which are left off
+deliberately — both are hard to reverse and depend on how the domain is set up.
+
+Django only learns the original scheme from `X-Forwarded-Proto`, which is
+already trusted, so terminate TLS at nginx or the load balancer and pass that
+header through — otherwise the HTTPS redirect loops.
+
+If the API and the storefront end up on **different sites**, cookies need
+`AUTH_COOKIE_SAMESITE=None` and `AUTH_COOKIE_SECURE=True`; browsers reject
+`None` without `Secure`. Putting both behind one parent domain and setting
+`AUTH_COOKIE_DOMAIN` keeps the stricter `Lax` default.
 
 ## Deploying to Netlify
 

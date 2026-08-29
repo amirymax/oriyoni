@@ -68,6 +68,9 @@ AUTHENTICATION_BACKENDS = ["accounts.backends.EmailBackend"]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Serves the admin's static files straight from gunicorn, so a deploy
+    # does not also need nginx to be taught where they live.
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     # Must precede CommonMiddleware so that preflights get their headers even
     # when CommonMiddleware would redirect the request.
     "corsheaders.middleware.CorsMiddleware",
@@ -130,6 +133,12 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    # Hashed filenames and compression, so static files can be cached hard.
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
 
 # --------------------------------------------------------- REST framework --
 
@@ -228,3 +237,42 @@ CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.com")
 # Where password reset links point; the storefront owns that page, not Django.
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
 PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 3)
+
+# -------------------------------------------------------------- security --
+
+# All of these only bite once DEBUG is off, so local development over plain
+# http is unaffected while production gets the strict settings by default.
+if not DEBUG:
+    # Behind nginx or a load balancer, Django only learns the original scheme
+    # from this header — without it every request looks like plain http and
+    # the redirect below would loop.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=True)
+
+    # Start low and raise it once you are sure every subdomain is on HTTPS:
+    # browsers remember HSTS, so a careless value is hard to walk back.
+    SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=3600)
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
+    SECURE_HSTS_PRELOAD = env.bool("SECURE_HSTS_PRELOAD", default=False)
+
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+
+# --------------------------------------------------------------- logging --
+
+# Without this Django logs nothing above WARNING once DEBUG is off, so a 500
+# in production would leave no trace.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {"format": "{levelname} {asctime} {name} {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
+    },
+    "root": {"handlers": ["console"], "level": env("LOG_LEVEL", default="INFO")},
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+    },
+}

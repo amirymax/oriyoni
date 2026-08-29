@@ -33,3 +33,8 @@ addopts = "--reuse-db --strict-markers"
 markers = [
     "seeded: keep the catalogue the seed migration created instead of emptying it",
 ]
+filterwarnings = [
+    # WhiteNoise warns that STATIC_ROOT is missing. collectstatic builds it at
+    # deploy time; the suite serves no static files and does not need it.
+    "ignore:No directory at:UserWarning",
+]

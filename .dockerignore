@@ -1,0 +1,25 @@
+# The image is the backend only.
+frontend/
+node_modules/
+
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+htmlcov/
+.coverage*
+
+.git/
+.github/
+.claude/
+staticfiles/
+mediafiles/
+
+# Secrets never belong in an image layer.
+.env
+.env.*
+!.env.example
+
+.DS_Store
+*.md
