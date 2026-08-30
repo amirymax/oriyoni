@@ -90,7 +90,10 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
   const { method = "GET", body, retried = false } = options;
   const headers: Record<string, string> = {};
 
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  // FormData (multipart uploads) sets its own Content-Type with a boundary —
+  // stringifying it or overriding that header would corrupt the request.
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isFormData) headers["Content-Type"] = "application/json";
 
   if (method !== "GET") {
     const token = await ensureCsrfToken();
@@ -101,7 +104,7 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
     method,
     credentials: "include",
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isFormData ? (body as FormData) : JSON.stringify(body),
   });
 
   // The access token lapsed mid-session. Refresh once and try again, so the
@@ -138,6 +141,7 @@ export type User = {
   last_name: string;
   full_name: string;
   created_at: string;
+  is_staff: boolean;
 };
 
 export type ApiColor = {

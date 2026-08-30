@@ -5,3 +5,5 @@ djangorestframework-simplejwt==5.5.1
 django-cors-headers==4.9.0
 django-environ==0.14.0
 psycopg[binary]==3.3.4
+# Required by catalog.models.ProductImage's ImageField.
+Pillow==11.3.0

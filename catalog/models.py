@@ -167,3 +167,25 @@ class ProductVariant(TimeStampedModel):
     @property
     def in_stock(self):
         return self.is_active and self.stock > 0
+
+
+class ProductImage(TimeStampedModel):
+    """A photo attached to a product, optionally tagged to one colourway.
+
+    Managed from the admin panel, replacing the storefront's placeholder
+    garment mockups on products that have real photography.
+    """
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    color = models.ForeignKey(
+        Color, on_delete=models.SET_NULL, null=True, blank=True, related_name="+"
+    )
+    image = models.ImageField(upload_to="products/")
+    alt_text = models.CharField(max_length=200, blank=True)
+    position = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["position", "id"]
+
+    def __str__(self):
+        return f"{self.product.name_en} — image {self.pk}"

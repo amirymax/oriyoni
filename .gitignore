@@ -28,6 +28,7 @@ htmlcov/
 .coverage.*
 staticfiles/
 mediafiles/
+media/
 
 # --------------------------------------------------------------------- env --
 # Committed sample stays; real secrets never do.

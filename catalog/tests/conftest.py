@@ -11,6 +11,16 @@ def api():
     return APIClient()
 
 
+@pytest.fixture(autouse=True)
+def _tmp_media_root(settings, tmp_path):
+    """Write uploaded product photos to a throwaway directory.
+
+    Without this, `ProductImageAdminViewSet` tests would write real files
+    under the repo's `media/` on every run.
+    """
+    settings.MEDIA_ROOT = tmp_path
+
+
 @pytest.fixture
 def tees(db):
     return Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки", position=0)

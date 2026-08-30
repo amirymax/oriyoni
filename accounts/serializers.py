@@ -16,10 +16,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "email", "first_name", "last_name", "full_name", "created_at"]
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "full_name",
+            "is_staff",
+            "created_at",
+        ]
         # Email is the login credential. Changing it is an account takeover
         # vector without a confirmation step, so it is not editable here.
-        read_only_fields = ["id", "email", "created_at"]
+        # is_staff lets the storefront gate the admin panel link; a shopper
+        # cannot grant it to themselves since it is read-only.
+        read_only_fields = ["id", "email", "is_staff", "created_at"]
 
 
 class PasswordField(serializers.CharField):

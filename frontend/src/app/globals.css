@@ -294,6 +294,66 @@ select:focus-visible {
   transform: translateX(-100%);
 }
 
+/* --- Centered modal ---------------------------------------------------------
+   Same stay-mounted-and-transition approach as the drawer above (`inert` when
+   closed, so no unmount/remount flash), but the panel pops from the page's
+   center instead of sliding from an edge — used by admin create/edit dialogs. */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal-root[data-open="false"] {
+  pointer-events: none;
+}
+
+.modal-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 10 10 / 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--motion-exit) var(--ease-in-soft),
+    visibility var(--motion-exit);
+}
+
+.modal-panel {
+  position: relative;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px) scale(0.98);
+  will-change: transform, opacity;
+  transition:
+    opacity var(--motion-exit) var(--ease-in-soft),
+    transform var(--motion-exit) var(--ease-in-soft),
+    visibility var(--motion-exit);
+}
+
+.modal-root[data-open="true"] .modal-scrim {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--motion-enter) var(--ease-out-soft),
+    visibility var(--motion-enter);
+}
+
+.modal-root[data-open="true"] .modal-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity var(--motion-enter) var(--ease-out-soft),
+    transform var(--motion-enter) var(--ease-out-soft),
+    visibility var(--motion-enter);
+}
+
 /* The blanket reduced-motion rule above cannot reach view-transition
    pseudo-elements — they sit outside the document tree — so silence them here. */
 @media (prefers-reduced-motion: reduce) {

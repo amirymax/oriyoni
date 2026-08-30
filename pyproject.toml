@@ -21,6 +21,7 @@ known-first-party = [
     "catalog",
     "config",
     "core",
+    "dashboard",
     "engagement",
     "orders",
     "wishlist",

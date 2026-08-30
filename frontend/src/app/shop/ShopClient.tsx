@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { ChevronDownIcon } from "@/components/icons";
 import { PageHeader } from "@/components/PageHeader";
@@ -25,19 +26,32 @@ export function ShopClient({
   initialQuery?: string;
 }) {
   const { t, count } = useLanguage();
+  const router = useRouter();
 
-  const [category, setCategory] = useState<CategoryFilter>(
-    (categories as readonly string[]).includes(initialCategory ?? "")
-      ? (initialCategory as CategoryFilter)
-      : "All"
-  );
-  const [tag, setTag] = useState<ProductTag | null>(
+  const category: CategoryFilter = (categories as readonly string[]).includes(
+    initialCategory ?? ""
+  )
+    ? (initialCategory as CategoryFilter)
+    : "All";
+  const tag: ProductTag | null =
     initialTag === "new" || initialTag === "sale" || initialTag === "bestseller"
       ? initialTag
-      : null
-  );
+      : null;
   const [sort, setSort] = useState<SortId>("newest");
   const query = initialQuery ?? "";
+
+  // The products this page received were already narrowed server-side to
+  // this exact category/tag/query combination (see app/shop/page.tsx), so
+  // switching filters has to navigate rather than just filter in place —
+  // otherwise a pill could only ever narrow within an already-narrowed set.
+  function go(nextCategory: CategoryFilter, nextTag: ProductTag | null) {
+    const params = new URLSearchParams();
+    if (nextCategory !== "All") params.set("category", nextCategory);
+    if (nextTag) params.set("tag", nextTag);
+    if (query) params.set("q", query);
+    const qs = params.toString();
+    router.push(qs ? `/shop?${qs}` : "/shop");
+  }
 
   const sorts: { id: SortId; label: string }[] = [
     { id: "newest", label: t.sortNewest },
@@ -74,30 +88,17 @@ export function ShopClient({
       <div className="container-shell py-10 sm:py-14">
         <div className="flex flex-col gap-4 border-b border-line pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
-            <FilterPill
-              active={category === "All" && !tag}
-              onClick={() => {
-                setCategory("All");
-                setTag(null);
-              }}
-            >
+            <FilterPill active={category === "All" && !tag} onClick={() => go("All", null)}>
               {t.filterAll}
             </FilterPill>
             {categories.map((c) => (
-              <FilterPill
-                key={c}
-                active={category === c}
-                onClick={() => {
-                  setCategory(c);
-                  setTag(null);
-                }}
-              >
+              <FilterPill key={c} active={category === c} onClick={() => go(c, null)}>
                 {categoryLabel(c, t)}
               </FilterPill>
             ))}
             <FilterPill
               active={tag === "sale"}
-              onClick={() => setTag(tag === "sale" ? null : "sale")}
+              onClick={() => go(category, tag === "sale" ? null : "sale")}
             >
               {t.navSale}
             </FilterPill>
