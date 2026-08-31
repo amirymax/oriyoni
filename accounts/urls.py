@@ -11,6 +11,12 @@ urlpatterns = [
     path("refresh/", views.RefreshView.as_view(), name="refresh"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("me/", views.MeView.as_view(), name="me"),
+    path("email/verify/", views.EmailVerifyView.as_view(), name="email-verify"),
+    path(
+        "email/verify/resend/",
+        views.EmailVerificationResendView.as_view(),
+        name="email-verify-resend",
+    ),
     path("password/change/", views.PasswordChangeView.as_view(), name="password-change"),
     path("password/reset/", views.PasswordResetRequestView.as_view(), name="password-reset"),
     path(

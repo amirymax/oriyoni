@@ -165,6 +165,13 @@ REST_FRAMEWORK = {
         "login": env("THROTTLE_LOGIN", default="10/min"),
         "register": env("THROTTLE_REGISTER", default="10/hour"),
         "password_reset": env("THROTTLE_PASSWORD_RESET", default="5/hour"),
+        # Resending a confirmation is the same shape of abuse: a free way to
+        # mail an address the sender does not own.
+        "email_verify_resend": env("THROTTLE_EMAIL_VERIFY_RESEND", default="5/hour"),
+        # Redeeming one sends no mail, and the storefront posts the link
+        # automatically on page load, so a couple of reloads must not use up
+        # the shopper's budget for actually asking for a new email.
+        "email_verify": env("THROTTLE_EMAIL_VERIFY", default="20/hour"),
         "checkout": env("THROTTLE_CHECKOUT", default="20/hour"),
         # Newsletter and contact are unauthenticated write endpoints,
         # which is exactly what a spam script looks for.
@@ -234,13 +241,16 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyoni.com>")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyoni.shop>")
 # Where the contact form lands.
-CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.com")
+CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.shop")
 
 # Where password reset links point; the storefront owns that page, not Django.
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
 PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 3)
+# Confirmation links get a longer budget than reset links on purpose: nothing
+# is blocked while one goes unread, so it should still work the next morning.
+EMAIL_VERIFICATION_TIMEOUT = env.int("EMAIL_VERIFICATION_TIMEOUT", default=60 * 60 * 48)
 
 # -------------------------------------------------------------- security --
 

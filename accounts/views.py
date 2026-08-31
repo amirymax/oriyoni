@@ -1,4 +1,7 @@
+import logging
+
 from django.contrib.auth.models import update_last_login
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from rest_framework import status
@@ -10,9 +13,11 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.cookies import clear_auth_cookies, get_refresh_token, set_auth_cookies
-from accounts.emails import send_password_reset_email
+from accounts.emails import send_email_verification, send_password_reset_email
 from accounts.models import User
 from accounts.serializers import (
+    EmailVerificationConfirmSerializer,
+    EmailVerificationResendSerializer,
     LoginSerializer,
     PasswordChangeSerializer,
     PasswordResetConfirmSerializer,
@@ -21,6 +26,8 @@ from accounts.serializers import (
     UserSerializer,
 )
 from accounts.signals import user_signed_in
+
+logger = logging.getLogger(__name__)
 
 
 def _session_response(user, status_code=status.HTTP_200_OK, mark_login=False, request=None):
@@ -43,6 +50,20 @@ def _session_response(user, status_code=status.HTTP_200_OK, mark_login=False, re
     refresh = RefreshToken.for_user(user)
     response = Response(UserSerializer(user).data, status=status_code)
     return set_auth_cookies(response, access=str(refresh.access_token), refresh=str(refresh))
+
+
+def _send_verification(user, language):
+    """Mail the confirmation link, best effort.
+
+    The account is already saved and already works, so a mail server having a
+    bad day must not turn a completed signup into an error the shopper cannot
+    retry — the address would be taken by then. The traceback still reaches
+    the log, and /email/verify/resend/ is there for a second attempt.
+    """
+    try:
+        send_email_verification(user, language)
+    except Exception:
+        logger.exception("Could not send the confirmation email for user %s", user.pk)
 
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
@@ -77,8 +98,10 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        # Signing straight in: with no email verification step there is nothing
-        # to wait for, and bouncing to a login form would be busywork.
+        _send_verification(user, serializer.validated_data["language"])
+        # Signing straight in: confirming the address is a nudge rather than a
+        # gate, so there is nothing to wait for and bouncing to a login form
+        # would be busywork.
         return _session_response(user, status.HTTP_201_CREATED, mark_login=True, request=request)
 
 
@@ -209,3 +232,50 @@ class PasswordResetConfirmView(APIView):
         # Changing the password changes the token generator's input, so the
         # link that got here is now dead and cannot be reused.
         return _session_response(user, mark_login=True, request=request)
+
+
+@csrf_protected
+class EmailVerifyView(APIView):
+    """Redeems a confirmation link and signs the browser holding it in.
+
+    Signing in here matches the reset flow, and for the same reason: whoever
+    opened the link proved they read the account's inbox. It also means
+    clicking through on a phone leaves you signed in on the phone.
+    """
+
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_scope = "email_verify"
+
+    def post(self, request):
+        serializer = EmailVerificationConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+        user.email_verified_at = timezone.now()
+        user.save(update_fields=["email_verified_at", "updated_at"])
+
+        return _session_response(user, mark_login=True, request=request)
+
+
+@csrf_protected
+class EmailVerificationResendView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_scope = "email_verify_resend"
+
+    def post(self, request):
+        serializer = EmailVerificationResendSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = User.objects.normalize_email(serializer.validated_data["email"])
+        user = User.objects.filter(
+            email=email, is_active=True, email_verified_at__isnull=True
+        ).first()
+        if user is not None:
+            _send_verification(user, serializer.validated_data["language"])
+
+        # The same answer either way, for the reason the reset endpoint gives:
+        # otherwise this is a way to ask which addresses shop here, and which
+        # of them have already confirmed.
+        return Response({"detail": "If that address still needs confirming, a link is on its way."})
