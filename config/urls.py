@@ -4,7 +4,12 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Not "admin/": the storefront owns that path. The staff-facing panel the
+    # shop actually runs on is a Next.js route at /admin, and nginx sends
+    # everything that is not /api/ or this prefix to it. Django's own admin
+    # stays available for the things a hand-built panel does not cover —
+    # permissions, groups, raw rows after a bad import.
+    path("django-admin/", admin.site.urls),
     path("api/", include("core.urls")),
     path("api/auth/", include("accounts.urls")),
     path("api/", include("catalog.urls")),

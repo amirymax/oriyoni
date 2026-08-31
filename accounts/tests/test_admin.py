@@ -77,4 +77,4 @@ def test_non_staff_cannot_reach_the_admin(client):
     response = client.get(reverse("admin:accounts_user_changelist"))
 
     assert response.status_code == 302
-    assert "/admin/login/" in response.url
+    assert reverse("admin:login") in response.url

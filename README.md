@@ -25,8 +25,10 @@ npm --prefix frontend run dev             # site on :3000
 ```
 
 The site runs at http://localhost:3000 and the API at http://localhost:8000.
-Create an admin login with `.venv/bin/python manage.py createsuperuser` and
-manage the shop at http://localhost:8000/admin/.
+Create an admin login with `.venv/bin/python manage.py createsuperuser`. The
+shop is managed from the staff panel at http://localhost:3000/admin, which is
+part of the storefront; Django's own admin is at
+http://localhost:8000/django-admin/ for the things the panel does not cover.
 
 | Script                            | Purpose                        |
 | --------------------------------- | ------------------------------ |
