@@ -9,7 +9,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { ApiError } from "@/lib/api";
 
 export default function RegisterPage() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { register } = useAuth();
   const router = useRouter();
 
@@ -26,12 +26,15 @@ export default function RegisterPage() {
     setError(null);
 
     try {
-      // Registering signs you in, so there is no second step here.
+      // Registering signs you in, so there is no second step here. A
+      // confirmation email goes out in the background; the account page nudges
+      // about it until the link is followed.
       await register({
         email,
         password,
         first_name: firstName,
         last_name: lastName,
+        language: lang,
       });
       router.push("/account");
       router.refresh();

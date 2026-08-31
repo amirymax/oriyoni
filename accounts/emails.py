@@ -13,7 +13,9 @@ from django.core.mail import send_mail
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-_MESSAGES = {
+from accounts.tokens import email_verification_token_generator
+
+_RESET_MESSAGES = {
     "en": {
         "subject": "Reset your ORIYONI password",
         "body": (
@@ -37,9 +39,39 @@ _MESSAGES = {
 }
 
 
-def build_password_reset_url(user, token):
+_VERIFICATION_MESSAGES = {
+    "en": {
+        "subject": "Confirm your ORIYONI email",
+        "body": (
+            "Welcome to ORIYONI.\n\n"
+            "Confirm this address so we can reach you about your orders:\n{url}\n\n"
+            "The link is good for {hours} hours and can be used once. You can "
+            "keep shopping in the meantime — nothing is waiting on it.\n\n"
+            "If you did not create an account, you can ignore this message.\n\n"
+            "— ORIYONI"
+        ),
+    },
+    "ru": {
+        "subject": "Подтвердите адрес почты ORIYONI",
+        "body": (
+            "Добро пожаловать в ORIYONI.\n\n"
+            "Подтвердите этот адрес, чтобы мы могли писать вам о заказах:\n{url}\n\n"
+            "Ссылка действует {hours} ч. и работает один раз. Пока можно "
+            "спокойно продолжать покупки — она ничего не блокирует.\n\n"
+            "Если вы не создавали аккаунт, просто не открывайте ссылку.\n\n"
+            "— ORIYONI"
+        ),
+    },
+}
+
+
+def _link(path, user, token):
     query = urlencode({"uid": urlsafe_base64_encode(force_bytes(user.pk)), "token": token})
-    return f"{settings.FRONTEND_URL}/reset-password?{query}"
+    return f"{settings.FRONTEND_URL}{path}?{query}"
+
+
+def build_password_reset_url(user, token):
+    return _link("/reset-password", user, token)
 
 
 def send_password_reset_email(user, language="en"):
@@ -50,11 +82,35 @@ def send_password_reset_email(user, language="en"):
     """
     token = default_token_generator.make_token(user)
     url = build_password_reset_url(user, token)
-    template = _MESSAGES.get(language, _MESSAGES["en"])
+    template = _RESET_MESSAGES.get(language, _RESET_MESSAGES["en"])
 
     send_mail(
         subject=template["subject"],
         message=template["body"].format(url=url, hours=settings.PASSWORD_RESET_TIMEOUT // 3600),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+    return url
+
+
+def build_email_verification_url(user, token):
+    return _link("/verify-email", user, token)
+
+
+def send_email_verification(user, language="en"):
+    """Mail a single-use link confirming the address belongs to the shopper.
+
+    Nothing on the storefront waits for this: the account already works, and
+    confirming only clears the nudge and tells the shop the address is real.
+    """
+    token = email_verification_token_generator.make_token(user)
+    url = build_email_verification_url(user, token)
+    template = _VERIFICATION_MESSAGES.get(language, _VERIFICATION_MESSAGES["en"])
+
+    send_mail(
+        subject=template["subject"],
+        message=template["body"].format(url=url, hours=settings.EMAIL_VERIFICATION_TIMEOUT // 3600),
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
         fail_silently=False,

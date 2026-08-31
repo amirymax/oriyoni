@@ -21,6 +21,8 @@ type AuthContextValue = {
   register: (input: RegisterInput) => Promise<User>;
   signOut: () => Promise<void>;
   updateProfile: (input: ProfileInput) => Promise<User>;
+  /** Re-read the account from the API, e.g. after confirming an email. */
+  refreshUser: () => Promise<User | null>;
 };
 
 export type RegisterInput = {
@@ -28,6 +30,8 @@ export type RegisterInput = {
   password: string;
   first_name?: string;
   last_name?: string;
+  /** Which language to write the confirmation email in. */
+  language?: string;
 };
 
 export type ProfileInput = {
@@ -91,6 +95,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const me = await api<User>("/api/auth/me/");
+      setUser(me);
+      setStatus("authenticated");
+      return me;
+    } catch {
+      // A failure here says nothing new — the caller already has whatever the
+      // context last knew, and signing them out over it would be worse.
+      return null;
+    }
+  }, []);
+
   const updateProfile = useCallback(async (input: ProfileInput) => {
     const me = await api<User>("/api/auth/me/", { method: "PATCH", body: input });
     setUser(me);
@@ -106,8 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       signOut,
       updateProfile,
+      refreshUser,
     }),
-    [user, status, signIn, register, signOut, updateProfile]
+    [user, status, signIn, register, signOut, updateProfile, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -35,6 +35,7 @@ manage the shop at http://localhost:8000/admin/.
 | `npm --prefix frontend run lint`  | ESLint                         |
 | `.venv/bin/pytest`                | Backend tests (needs Postgres) |
 | `.venv/bin/ruff check .`          | Backend lint                   |
+| `.venv/bin/python manage.py check_email` | Verify the mail settings work |
 
 ## Structure
 
@@ -82,9 +83,20 @@ database connectivity — 200 when reachable, 503 when not.
 | `.venv/bin/ruff format .`     | Format                        |
 | `docker compose down`         | Stop Postgres (keeps data)    |
 | `docker compose down -v`      | Stop and wipe the database    |
+| `.venv/bin/python manage.py check_email [--to you@example.com]` | Check the mail settings, and optionally send a test |
 
 Settings read from the environment, falling back to development defaults; see
 `.env.example`. `.env` itself is never committed.
+
+### Email
+
+Development uses the console backend, which prints password reset and signup
+confirmation links straight into the runserver log — no mail server needed.
+Production points `EMAIL_*` at an SMTP relay. `manage.py check_email` reports
+the resolved settings and opens a real connection; `--to` also sends a test
+message. It distinguishes a rejected login from an unreachable host from an
+unverified sender, because those look identical in a raw traceback and want
+completely different fixes.
 
 ### Catalogue
 
@@ -258,67 +270,93 @@ server before the visitor's language preference is known. Moving language into
 the URL (`/en/…`, `/ru/…`) would make titles and SEO fully bilingual — worth
 doing if organic search matters.
 
-## Deploying the backend
+## Deploying
 
-The backend is a Docker image; the storefront is built by Netlify from
-`frontend/`. They deploy independently.
+Both halves run on one Ubuntu server behind nginx, on a single origin. gunicorn
+serves Django on `127.0.0.1:8000` and `next start` serves the storefront on
+`127.0.0.1:3000`; nginx sends `/api/`, `/admin/` and `/static/` to Django and
+everything else to Next.js.
 
-```bash
-docker build -t oriyoni-backend .
-docker run --env-file .env -p 8000:8000 oriyoni-backend
+One origin rather than two hostnames is deliberate: auth cookies never cross a
+site boundary, so CORS does not apply, the strict `SameSite=Lax` default keeps
+working, and one certificate covers the site.
+
+```
+                    ┌─ /api/, /admin/, /static/ ─► gunicorn :8000 ─► Postgres
+internet ─► nginx ──┤
+                    └─ everything else ──────────► next start :3000
 ```
 
-Static files are collected into the image at build time and served by
-WhiteNoise, so nothing in front of Django needs to know where they live. Run
-migrations against the production database on each release:
+Postgres runs on the host, reachable only over loopback. The firewall opens 22,
+80 and 443 and nothing else, so neither application port is reachable from
+outside the machine.
 
-```bash
-docker run --env-file .env oriyoni-backend python manage.py migrate
+### Layout on the server
+
+| Path | What |
+| ---- | ---- |
+| `/srv/oriyoni` | The repository, owned by the `deploy` user |
+| `/srv/oriyoni/.env` | Production settings, `chmod 600`, never committed |
+| `/srv/oriyoni/.venv` | Python environment |
+| `/srv/oriyoni/media` | Uploaded product photos — the only state outside Postgres |
+| `/etc/systemd/system/oriyoni.service` | Django, from `deploy/oriyoni.service` |
+| `/etc/systemd/system/oriyoni-web.service` | Storefront, from `deploy/oriyoni-web.service` |
+| `/etc/nginx/sites-available/oriyoni` | From `deploy/nginx.conf` |
+
+Logs are in the journal: `journalctl -u oriyoni -f`, `journalctl -u oriyoni-web -f`.
+
+### Continuous deployment
+
+`.github/workflows/deploy.yml` runs lint, the backend suite and a storefront
+build on every push and pull request. When those pass on `main`, it SSHes in as
+`deploy` and runs `deploy/deploy.sh`, which fetches `origin/main`, installs
+dependencies, migrates, rebuilds the storefront, restarts both services and
+smoke-tests them.
+
+The restart happens only after both builds succeed, so a broken build leaves the
+previous version serving rather than taking the site down.
+
+Two repository secrets are required:
+
+| Secret | Value |
+| ------ | ----- |
+| `SERVER_HOST` | The server's IP or hostname |
+| `SSH_PRIVATE_KEY` | A deploy-only private key whose public half is in `deploy`'s `authorized_keys` |
+
+The key should be dedicated to this server rather than a personal one, so it can
+be revoked on its own.
+
+`deploy` needs to restart the services without a password prompt, since Actions
+cannot answer one. Grant exactly that and nothing more:
+
+```
+# /etc/sudoers.d/oriyoni-deploy
+deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart oriyoni oriyoni-web
 ```
 
 ### What production must set
 
-| Variable                | Why                                                    |
+| Variable | Why |
 | ----------------------- | ------------------------------------------------------ |
-| `DJANGO_SECRET_KEY`     | Generate one; the default is a development placeholder |
-| `DJANGO_DEBUG`          | `False`                                                |
-| `DJANGO_ALLOWED_HOSTS`  | The API's own hostname                                 |
-| `DATABASE_URL`          | The real Postgres server                               |
-| `FRONTEND_URL`          | Where password reset links point                       |
-| `CORS_ALLOWED_ORIGINS`  | The storefront's origin                                |
-| `CSRF_TRUSTED_ORIGINS`  | The same                                               |
-| `EMAIL_*`               | An SMTP server, or reset emails go nowhere             |
+| `DJANGO_SECRET_KEY` | Generate one; the default is a development placeholder |
+| `DJANGO_DEBUG` | `False` |
+| `DJANGO_ALLOWED_HOSTS` | The site's hostname, plus `127.0.0.1` for the smoke test |
+| `DATABASE_URL` | The real Postgres server |
+| `FRONTEND_URL` | Where password reset and confirmation links point |
+| `CSRF_TRUSTED_ORIGINS` | The site's origin |
+| `EMAIL_*` | An SMTP relay, or account email goes nowhere |
+
+`CORS_ALLOWED_ORIGINS` only matters if the storefront is ever served from a
+different origin than the API; on this layout they are the same.
 
 With `DJANGO_DEBUG=False` the security settings switch on by themselves: HTTPS
 redirect, HSTS, secure cookies, and the browsable API off. `manage.py check
 --deploy` is clean apart from HSTS subdomains and preload, which are left off
 deliberately — both are hard to reverse and depend on how the domain is set up.
 
-Django only learns the original scheme from `X-Forwarded-Proto`, which is
-already trusted, so terminate TLS at nginx or the load balancer and pass that
-header through — otherwise the HTTPS redirect loops.
-
-If the API and the storefront end up on **different sites**, cookies need
-`AUTH_COOKIE_SAMESITE=None` and `AUTH_COOKIE_SECURE=True`; browsers reject
-`None` without `Secure`. Putting both behind one parent domain and setting
-`AUTH_COOKIE_DOMAIN` keeps the stricter `Lax` default.
-
-## Deploying to Netlify
-
-The repo includes `netlify.toml`, so no build settings need to be entered by
-hand.
-
-1. In Netlify: **Add new site → Import an existing project → GitHub**.
-2. Authorise Netlify and pick this repository.
-3. Netlify reads `netlify.toml` — base directory `frontend`, build
-   `npm run build`, publish `.next`, Node 22 — and installs the Next.js
-   Runtime. Click **Deploy**.
-
-Because the base directory is `frontend`, Netlify only builds the storefront;
-the Django backend at the root is deployed separately.
-
-Every push to the default branch triggers a deploy; pull requests get preview
-deploys.
+Django only learns the original scheme from `X-Forwarded-Proto`, which nginx
+sets and settings already trust. Terminate TLS at nginx — without that header
+the HTTPS redirect loops.
 
 ## Not built yet
 

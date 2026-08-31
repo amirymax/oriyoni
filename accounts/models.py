@@ -22,6 +22,17 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
 
+    # Null until the address is confirmed by following an emailed link. A
+    # timestamp rather than a flag because "when" is the question support ends
+    # up asking, and a boolean cannot answer it. Deliberately not is_active:
+    # an inactive user fails authenticate(), so an unconfirmed shopper would
+    # be told their brand new password was wrong.
+    email_verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the address was confirmed by following an emailed link.",
+    )
+
     is_active = models.BooleanField(
         default=True,
         help_text="Unset instead of deleting an account, to keep its order history.",
@@ -51,6 +62,10 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
         # case-insensitive no matter which code path created the row.
         self.email = self.__class__.objects.normalize_email(self.email)
         return super().save(*args, **kwargs)
+
+    @property
+    def email_verified(self):
+        return self.email_verified_at is not None
 
     def get_full_name(self):
         return f"{self.first_name} {self.last_name}".strip()

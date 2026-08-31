@@ -7,12 +7,17 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 
 from accounts.models import User
+from accounts.tokens import email_verification_token_generator
 
 
 class UserSerializer(serializers.ModelSerializer):
     """The shape of `me` — everything the storefront shows about an account."""
 
     full_name = serializers.CharField(source="get_full_name", read_only=True)
+    # A boolean rather than the timestamp: the storefront only ever asks
+    # whether to show the nudge, and the date is nobody's business but the
+    # shop's.
+    email_verified = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -22,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "full_name",
+            "email_verified",
             "is_staff",
             "created_at",
         ]
@@ -55,10 +61,13 @@ class PasswordField(serializers.CharField):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = PasswordField()
+    # Not stored anywhere: it only decides which language the confirmation
+    # email is written in, the same way the reset request carries it.
+    language = serializers.ChoiceField(choices=["en", "ru"], default="en", write_only=True)
 
     class Meta:
         model = User
-        fields = ["email", "password", "first_name", "last_name"]
+        fields = ["email", "password", "first_name", "last_name", "language"]
         extra_kwargs = {
             "first_name": {"required": False},
             "last_name": {"required": False},
@@ -75,12 +84,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         # Re-run the validators now that the other fields are known, so
         # "ada@example.com" is rejected as a password for ada@example.com.
-        unsaved = User(**{k: v for k, v in attrs.items() if k != "password"})
+        unsaved = User(**{k: v for k, v in attrs.items() if k not in {"password", "language"}})
         _validate_password_against_user(attrs["password"], unsaved, field="password")
         return attrs
 
     def create(self, validated_data):
         password = validated_data.pop("password")
+        # The view still reads it off validated_data; save() hands create() a
+        # copy, so popping here does not take it away.
+        validated_data.pop("language", None)
         return User.objects.create_user(password=password, **validated_data)
 
 
@@ -141,6 +153,29 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             )
 
         _validate_password_against_user(attrs["new_password"], user, field="new_password")
+        attrs["user"] = user
+        return attrs
+
+
+class EmailVerificationResendSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    language = serializers.ChoiceField(choices=["en", "ru"], default="en")
+
+
+class EmailVerificationConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+
+    def validate(self, attrs):
+        user = _user_from_uid(attrs["uid"])
+
+        # A used link fails here too: redeeming one stamps email_verified_at,
+        # which the token hashes, so the second attempt no longer matches.
+        if user is None or not email_verification_token_generator.check_token(user, attrs["token"]):
+            raise serializers.ValidationError(
+                {"token": ["This confirmation link is invalid or has expired."]}
+            )
+
         attrs["user"] = user
         return attrs
 

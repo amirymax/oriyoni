@@ -43,7 +43,7 @@ export default function ContactPage() {
               <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-ink">
                 {t.contactEmailHeading}
               </h2>
-              <p className="mt-2">support@oriyoni.com</p>
+              <p className="mt-2">support@oriyoni.shop</p>
             </div>
             <div>
               <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-ink">

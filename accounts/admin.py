@@ -14,8 +14,16 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
 
-    list_display = ["email", "first_name", "last_name", "is_staff", "is_active", "created_at"]
-    list_filter = ["is_staff", "is_superuser", "is_active"]
+    list_display = [
+        "email",
+        "first_name",
+        "last_name",
+        "email_confirmed",
+        "is_staff",
+        "is_active",
+        "created_at",
+    ]
+    list_filter = ["is_staff", "is_superuser", "is_active", "email_verified_at"]
     search_fields = ["email", "first_name", "last_name"]
     ordering = ["-created_at"]
     readonly_fields = ["created_at", "updated_at", "last_login"]
@@ -35,8 +43,15 @@ class UserAdmin(BaseUserAdmin):
                 ]
             },
         ),
+        # Editable, so support can confirm an address by hand for a shopper
+        # whose mail provider is eating the link.
+        ("Email", {"fields": ["email_verified_at"]}),
         ("Dates", {"fields": ["last_login", "created_at", "updated_at"]}),
     ]
+
+    @admin.display(boolean=True, description="Email confirmed", ordering="email_verified_at")
+    def email_confirmed(self, user):
+        return user.email_verified
 
     add_fieldsets = [
         (
