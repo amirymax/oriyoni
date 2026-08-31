@@ -320,6 +320,16 @@ const en = {
   authVerifyBannerAction: "Resend confirmation email",
   authVerifyEmailLabel: "Email",
 
+  // Offered to a guest at checkout. Phrased as an invitation, not a gate —
+  // guest checkout still works.
+  guestPromptTitle: "Keep Track of Your Orders",
+  guestPromptBody:
+    "Create an account to save and track all your orders and shopping history. Your bag comes with you — nothing is lost.",
+  guestPromptCreate: "Create Account",
+  guestPromptSignIn: "Sign In",
+  guestPromptContinue: "Continue as guest",
+  guestPromptDismiss: "Close",
+
   // Checkout
   checkoutTitle: "Checkout",
   checkoutDescription: "Where should we send it?",
@@ -637,6 +647,15 @@ const ru: Dict = {
     "Адрес почты пока не подтверждён. Подтвердите его, чтобы мы могли писать вам о заказах.",
   authVerifyBannerAction: "Отправить письмо ещё раз",
   authVerifyEmailLabel: "Эл. почта",
+
+  // Предложение гостю при оформлении
+  guestPromptTitle: "Сохраните свои заказы",
+  guestPromptBody:
+    "Создайте аккаунт, чтобы сохранять и отслеживать все заказы и историю покупок. Корзина останется с вами — ничего не потеряется.",
+  guestPromptCreate: "Создать аккаунт",
+  guestPromptSignIn: "Войти",
+  guestPromptContinue: "Продолжить как гость",
+  guestPromptDismiss: "Закрыть",
 
   // Checkout
   checkoutTitle: "Оформление",

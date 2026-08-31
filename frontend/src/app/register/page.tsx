@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 import { AuthShell, Field, FormError, SubmitButton } from "@/components/form";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { ApiError } from "@/lib/api";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const { t, lang } = useLanguage();
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -36,7 +37,10 @@ export default function RegisterPage() {
         last_name: lastName,
         language: lang,
       });
-      router.push("/account");
+      // Sent back where they came from when the storefront asked them to
+      // sign up mid-task — abandoning a half-finished checkout to land on
+      // the account page is how a prompt to register loses an order.
+      router.push(searchParams.get("next") ?? "/account");
       router.refresh();
     } catch (caught) {
       setError(caught instanceof ApiError ? caught : new ApiError(0, t.authOffline));
@@ -106,5 +110,15 @@ export default function RegisterPage() {
         </SubmitButton>
       </form>
     </AuthShell>
+  );
+}
+
+export default function RegisterPage() {
+  // useSearchParams opts the route into client-side rendering, which Next
+  // requires a Suspense boundary for.
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }
