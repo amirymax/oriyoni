@@ -15,8 +15,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
-    name: Tests and lint
+  # Backend and storefront checks are independent, so they run side by side
+  # rather than one after the other — the storefront build is free wall-clock
+  # time while the Django suite runs.
+  backend:
+    name: Backend
     runs-on: ubuntu-latest
 
     services:
@@ -40,6 +43,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          cache-dependency-path: requirements/*.txt
 
       - run: pip install -r requirements/dev.txt
 
@@ -48,10 +52,17 @@ jobs:
           ruff check .
           ruff format --check .
 
-      - name: Backend tests
+      - name: Tests
         env:
           DATABASE_URL: postgres://oriyoni:oriyoni@localhost:5432/oriyoni
         run: pytest -q
+
+  frontend:
+    name: Storefront
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
@@ -59,29 +70,37 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Storefront build
-        # Catches type errors and broken imports here rather than on the server,
-        # where a failed build would mean a half-finished deploy.
+      - name: Build
+        # Catches type errors here rather than on the server, so a doomed
+        # deploy never starts.
         run: npm ci --no-audit --no-fund && npm run build
         working-directory: frontend
 
   deploy:
     name: Deploy to server
-    needs: test
+    needs: [backend, frontend]
     # Only main, and never from a pull request — a PR from a fork would
     # otherwise be able to run code against the production server.
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Run the deploy script over SSH
         env:
           SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           HOST: ${{ secrets.SERVER_HOST }}
+        # The script is piped from this checkout rather than run from a path on
+        # the server. It lives in the repo, so expecting it to already be there
+        # is circular — the very first deploy, and any deploy after the script
+        # is renamed, would fail on a server whose tree predates it. Piping also
+        # guarantees the script that runs is the one from the commit being
+        # deployed.
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
-              "deploy@$HOST" "bash /srv/oriyoni/deploy/deploy.sh"
+              "deploy@$HOST" "bash -s" < deploy/deploy.sh

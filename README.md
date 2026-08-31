@@ -307,11 +307,15 @@ Logs are in the journal: `journalctl -u oriyoni -f`, `journalctl -u oriyoni-web 
 
 ### Continuous deployment
 
-`.github/workflows/deploy.yml` runs lint, the backend suite and a storefront
-build on every push and pull request. When those pass on `main`, it SSHes in as
-`deploy` and runs `deploy/deploy.sh`, which fetches `origin/main`, installs
-dependencies, migrates, rebuilds the storefront, restarts both services and
-smoke-tests them.
+`.github/workflows/deploy.yml` runs the backend suite and the storefront build
+as two parallel jobs on every push and pull request. When both pass on `main`,
+it pipes `deploy/deploy.sh` over SSH to the `deploy` user, which fetches
+`origin/main`, installs dependencies, migrates, rebuilds the storefront,
+restarts both services and smoke-tests them.
+
+The script is piped rather than run from a path on the server. It lives in the
+repo, so expecting it to already be there is circular — a server whose checkout
+predates the script could never deploy the commit that adds it.
 
 The restart happens only after both builds succeed, so a broken build leaves the
 previous version serving rather than taking the site down.
