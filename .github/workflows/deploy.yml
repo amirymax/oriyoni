@@ -19,8 +19,18 @@ jobs:
   # rather than one after the other — the storefront build is free wall-clock
   # time while the Django suite runs.
   backend:
-    name: Backend
+    name: Backend (py${{ matrix.python }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is what a local checkout gets from the README; 3.14 is what
+        # Ubuntu 26.04 ships and what the server's venv is built on. Testing
+        # only one of them means the suite passing says nothing about the
+        # interpreter production actually runs. Both run in parallel, so this
+        # costs no wall-clock time.
+        python: ["3.12", "3.14"]
 
     services:
       postgres:
@@ -41,7 +51,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: requirements/*.txt
 
