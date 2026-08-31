@@ -7,3 +7,7 @@ django-environ==0.14.0
 psycopg[binary]==3.3.4
 # Required by catalog.models.ProductImage's ImageField.
 Pillow==11.3.0
+# config.settings lists WhiteNoise in MIDDLEWARE unconditionally, so it is
+# needed to import settings at all — tests and management commands
+# included, not just the server.
+whitenoise==6.12.0
