@@ -305,6 +305,21 @@ const en = {
   authGenericError: "Something went wrong. Please try again.",
   authOffline: "Could not reach the store. Check your connection and try again.",
 
+  // Email confirmation. Nothing on the storefront waits for it, so the wording
+  // is a nudge rather than a warning.
+  authVerifyTitle: "Confirm Your Email",
+  authVerifyDescription: "Confirming the email address on your account.",
+  authVerifyDone: "Your email address is confirmed. Thank you.",
+  authVerifyInvalid:
+    "This confirmation link is invalid or has expired. We can send you a fresh one.",
+  authVerifyResend: "Send a New Link",
+  authVerifyResent:
+    "If that address still needs confirming, a new link is on its way.",
+  authVerifyBanner:
+    "Your email is not confirmed yet. Confirm it so we can reach you about your orders.",
+  authVerifyBannerAction: "Resend confirmation email",
+  authVerifyEmailLabel: "Email",
+
   // Checkout
   checkoutTitle: "Checkout",
   checkoutDescription: "Where should we send it?",
@@ -610,6 +625,18 @@ const ru: Dict = {
   authRequired: "Войдите, чтобы увидеть эту страницу.",
   authGenericError: "Что-то пошло не так. Попробуйте ещё раз.",
   authOffline: "Не удалось связаться с магазином. Проверьте соединение.",
+
+  // Подтверждение почты
+  authVerifyTitle: "Подтверждение почты",
+  authVerifyDescription: "Подтверждаем адрес почты вашего аккаунта.",
+  authVerifyDone: "Адрес подтверждён. Спасибо!",
+  authVerifyInvalid: "Ссылка недействительна или истекла. Мы пришлём новую.",
+  authVerifyResend: "Прислать новую ссылку",
+  authVerifyResent: "Если адрес ещё не подтверждён, новая ссылка уже в пути.",
+  authVerifyBanner:
+    "Адрес почты пока не подтверждён. Подтвердите его, чтобы мы могли писать вам о заказах.",
+  authVerifyBannerAction: "Отправить письмо ещё раз",
+  authVerifyEmailLabel: "Эл. почта",
 
   // Checkout
   checkoutTitle: "Оформление",

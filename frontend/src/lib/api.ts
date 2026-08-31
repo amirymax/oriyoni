@@ -140,6 +140,8 @@ export type User = {
   first_name: string;
   last_name: string;
   full_name: string;
+  /** Whether the address has been confirmed by following the emailed link. */
+  email_verified: boolean;
   created_at: string;
   is_staff: boolean;
 };

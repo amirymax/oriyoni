@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
+import { VerifyEmailNotice } from "@/components/VerifyEmailNotice";
 import { Field, FormError, FormNotice, SubmitButton } from "@/components/form";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -40,6 +41,8 @@ export default function AccountPage() {
     <>
       <PageHeader title={t.authAccountTitle} description={t.authAccountDescription} />
       <div className="container-shell space-y-14 py-10 sm:py-14">
+        <VerifyEmailNotice />
+
         <div className="flex flex-wrap items-center justify-between gap-4 border border-line px-5 py-4">
           <p className="text-sm text-graphite">
             {fmt(t.authSignedInAs, { email: user.email })}
