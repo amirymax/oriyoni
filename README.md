@@ -49,8 +49,8 @@ orders/              Checkout and order history
 wishlist/            Saved products
 engagement/          Newsletter and contact form
 requirements/        base.txt, dev.txt, prod.txt
-docker-compose.yml   Local Postgres
-Dockerfile           The backend image
+docker-compose.yml   Local Postgres, for development only
+deploy/              systemd units, nginx site, deploy script
 frontend/            Next.js storefront
   src/app/           Routes (home, shop, product, cart, checkout, account, …)
   src/components/    Shared UI, garment mockups, flags, icons
@@ -333,10 +333,15 @@ be revoked on its own.
 `deploy` needs to restart the services without a password prompt, since Actions
 cannot answer one. Grant exactly that and nothing more:
 
+```bash
+echo 'deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart oriyoni oriyoni-web' \
+  | sudo tee /etc/sudoers.d/oriyoni-deploy
+sudo chmod 440 /etc/sudoers.d/oriyoni-deploy
+sudo visudo -c
 ```
-# /etc/sudoers.d/oriyoni-deploy
-deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart oriyoni oriyoni-web
-```
+
+`deploy.sh` checks for this before it builds anything, so a missing rule fails
+in seconds with that command in the error rather than after a full build.
 
 ### What production must set
 

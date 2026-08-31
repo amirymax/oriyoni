@@ -10,7 +10,30 @@
 set -euo pipefail
 
 APP_DIR=/srv/oriyoni
+# Absolute path so it matches the sudoers rule exactly; a PATH lookup would
+# not.
+SYSTEMCTL=/usr/bin/systemctl
+
 cd "$APP_DIR"
+
+# Checked before anything is built rather than at the restart. Actions has no
+# terminal, so a missing sudoers rule fails with "a terminal is required to
+# authenticate" — after two minutes of installing and compiling, and with an
+# error that names neither the cause nor the fix.
+if ! sudo -n -l "$SYSTEMCTL" restart oriyoni oriyoni-web >/dev/null 2>&1; then
+    cat >&2 <<'ERR'
+error: the deploy user cannot restart the services without a password.
+
+GitHub Actions has no terminal, so sudo cannot prompt. Grant exactly this one
+command on the server:
+
+  echo 'deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart oriyoni oriyoni-web' \
+    | sudo tee /etc/sudoers.d/oriyoni-deploy
+  sudo chmod 440 /etc/sudoers.d/oriyoni-deploy
+  sudo visudo -c
+ERR
+    exit 1
+fi
 
 echo "==> Fetching origin/main"
 git fetch --prune origin
@@ -37,7 +60,7 @@ cd "$APP_DIR"
 echo "==> Restarting"
 # Restarted only after both builds succeed, so a broken build leaves the
 # previous version serving rather than taking the site down.
-sudo systemctl restart oriyoni oriyoni-web
+sudo "$SYSTEMCTL" restart oriyoni oriyoni-web
 
 echo "==> Smoke test"
 for attempt in $(seq 1 15); do
