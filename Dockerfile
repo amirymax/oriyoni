@@ -1,4 +1,6 @@
-# The backend only. The storefront is built by Netlify from frontend/.
+# The backend only, and not what production runs — the server deploys from
+# source under systemd (see deploy/ and the README). Kept because it is a
+# self-contained way to run the API without a local Python environment.
 FROM python:3.12-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
