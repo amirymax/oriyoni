@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { GuestCheckoutPrompt } from "@/components/GuestCheckoutPrompt";
 import { PageHeader } from "@/components/PageHeader";
 import { Field, FormError, SubmitButton } from "@/components/form";
 import { useAuth } from "@/context/AuthContext";
@@ -95,6 +96,10 @@ export default function CheckoutPage() {
 
   return (
     <>
+      {/* Only on the form itself: the empty-cart and confirmation states above
+          return early, and offering an account over either of those is asking
+          at the two moments it is least use. */}
+      <GuestCheckoutPrompt />
       <PageHeader title={t.checkoutTitle} description={t.checkoutDescription} />
       <div className="container-shell py-10 sm:py-14">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.2fr_1fr]">
