@@ -12,6 +12,20 @@ APP_DIR=/srv/oriyoni
 BACKUP_DIR=/srv/backups
 KEEP_DAYS=14
 
+# head -1 for two reasons. A key appended twice would otherwise come back as
+# two lines joined by a newline, and a value containing a newline fails in ways
+# that name anything but the duplicate behind it — a bot token becomes
+# "malformed URL". And it has to be the *first* match specifically, because
+# django-environ reads .env with setdefault, so that is the one the application
+# itself is using; taking the last would have this script quietly disagree with
+# Django about what the configuration says.
+#
+# Trailing \r is stripped for a related reason: a .env edited on Windows gives
+# values that look identical to correct ones and are not.
+read_env() {
+    sed -n "s/^$1=//p" "$APP_DIR/.env" | head -n 1 | tr -d '\r'
+}
+
 # Every check below reports what to run rather than just failing. A backup is
 # the one thing nobody looks at until they need it, so a bare "Permission
 # denied" in the journal is how you find out months later that it never ran.
@@ -42,10 +56,9 @@ fi
 
 STAMP=$(date +%Y%m%d-%H%M%S)
 
-# Read the URL from .env rather than hardcoding credentials here, so there is
-# one place the database password lives. cut -f2- because the URL itself
-# contains no "=" but does contain ":" and "@".
-DATABASE_URL=$(grep -E '^DATABASE_URL=' "$APP_DIR/.env" | cut -d= -f2-)
+# Read from .env rather than hardcoding credentials here, so the database
+# password lives in exactly one place.
+DATABASE_URL=$(read_env DATABASE_URL)
 if [ -z "${DATABASE_URL:-}" ]; then
     echo "error: no DATABASE_URL in $APP_DIR/.env" >&2
     exit 1
@@ -89,9 +102,9 @@ echo "backed up $STAMP (db: $(numfmt --to=iec "$DB_SIZE"))"
 # customer database. The passphrase belongs in a password manager, not on this
 # server — kept here it would protect nothing that losing the server has not
 # already lost.
-TG_TOKEN=$(sed -n 's/^TELEGRAM_BOT_TOKEN=//p' "$APP_DIR/.env")
-TG_CHAT=$(sed -n 's/^TELEGRAM_CHAT_ID=//p' "$APP_DIR/.env")
-PASSPHRASE=$(sed -n 's/^BACKUP_PASSPHRASE=//p' "$APP_DIR/.env")
+TG_TOKEN=$(read_env TELEGRAM_BOT_TOKEN)
+TG_CHAT=$(read_env TELEGRAM_CHAT_ID)
+PASSPHRASE=$(read_env BACKUP_PASSPHRASE)
 
 if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then
     exit 0
