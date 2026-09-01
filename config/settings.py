@@ -251,6 +251,17 @@ DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyon
 # Where the contact form lands.
 CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.shop")
 
+# ------------------------------------------------------------- telegram --
+
+# Optional: with either of these unset, notifications are skipped silently and
+# nothing else changes. TELEGRAM_CHAT_ID is the shop owner's own chat with the
+# bot, not a channel.
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_CHAT_ID = env("TELEGRAM_CHAT_ID", default="")
+# Notifications are sent inside the checkout request, so this bounds how long a
+# blocked or slow Telegram can hold a worker.
+TELEGRAM_TIMEOUT = env.int("TELEGRAM_TIMEOUT", default=5)
+
 # Where password reset links point; the storefront owns that page, not Django.
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
 PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 3)

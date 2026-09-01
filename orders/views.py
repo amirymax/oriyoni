@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from cart.session import get_cart
 from orders.checkout import EmptyCart, place_order
 from orders.models import Order
+from orders.notifications import notify_new_order
 from orders.serializers import CheckoutSerializer, OrderSerializer
 
 
@@ -38,9 +39,13 @@ class CheckoutView(APIView):
             note=serializer.validated_data.get("note", ""),
         )
 
-        return Response(
-            OrderSerializer(self.with_items(order)).data, status=status.HTTP_201_CREATED
-        )
+        order = self.with_items(order)
+        # After place_order returns, so outside its transaction: a slow
+        # notification must not hold locks on the stock rows, and an order that
+        # rolled back must never be announced.
+        notify_new_order(order, sum(item.quantity for item in order.items.all()))
+
+        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
     def with_items(self, order):
         return Order.objects.prefetch_related("items").get(pk=order.pk)

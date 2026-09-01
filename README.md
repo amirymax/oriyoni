@@ -345,6 +345,27 @@ sudo visudo -c
 `deploy.sh` checks for this before it builds anything, so a missing rule fails
 in seconds with that command in the error rather than after a full build.
 
+### Telegram
+
+Optional, and off until `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` are set.
+With them, a new order sends the shop owner a message: the order number, item
+count, total, and a link to that order in the staff panel.
+
+Nothing else. The customer's email, address and basket stay in the panel rather
+than being copied into a chat that is not end-to-end encrypted and keeps
+history forever — the message exists to make someone open the dashboard, and it
+does that without carrying anything worth leaking.
+
+It is sent after `place_order` returns, so outside its transaction: a slow
+Telegram must not hold locks on stock rows, and an order that rolled back must
+never be announced. Failures are logged and swallowed, because by then the
+stock is claimed and the cart emptied — an exception would report a failure for
+an order that exists.
+
+Get the two values by messaging **@BotFather** (`/newbot`) for a token, then
+messaging your bot once and reading the chat id from
+`https://api.telegram.org/bot<TOKEN>/getUpdates`.
+
 ### Backups
 
 `deploy/backup.sh`, run nightly by `oriyoni-backup.timer`, dumps Postgres and
@@ -372,6 +393,18 @@ a deleted table, which is the common case, and does nothing for the server
 itself failing. Copying `/srv/backups` somewhere else — and `.env` with it,
 since it holds the secret key, the database password and the mail credentials
 and exists in exactly one place — is what turns this into a real backup.
+
+Setting `BACKUP_PASSPHRASE` alongside the Telegram variables sends each night's
+dump to that chat, encrypted with AES256, which is the only offsite copy this
+setup has. The encryption is not optional and the script refuses to upload
+without it: the dump holds every customer's name, address and order history
+plus every password hash, and Telegram chats are neither end-to-end encrypted
+nor ever really deleted. Keep the passphrase in a password manager — a copy
+that lives on the server it is backing up is no copy at all.
+
+Telegram's Bot API refuses documents over 50 MB. The script says so and keeps
+the local backup rather than failing silently every night once the shop has
+grown into that limit.
 
 ### What production must set
 
