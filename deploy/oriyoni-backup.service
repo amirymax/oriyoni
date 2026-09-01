@@ -1,0 +1,11 @@
+# Install to /etc/systemd/system/ alongside oriyoni-backup.timer.
+[Unit]
+Description=Back up the ORIYONI database and uploaded media
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+ExecStart=/srv/oriyoni/deploy/backup.sh

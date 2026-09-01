@@ -1,0 +1,14 @@
+# Install to /etc/systemd/system/, then: systemctl enable --now oriyoni-backup.timer
+[Unit]
+Description=Nightly ORIYONI backup
+
+[Timer]
+OnCalendar=daily
+# Runs a missed backup after a reboot rather than skipping the night entirely.
+Persistent=true
+# Spreads the start over an hour so the backup does not land at exactly
+# midnight alongside every other cron job on the machine.
+RandomizedDelaySec=1h
+
+[Install]
+WantedBy=timers.target

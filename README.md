@@ -345,6 +345,34 @@ sudo visudo -c
 `deploy.sh` checks for this before it builds anything, so a missing rule fails
 in seconds with that command in the error rather than after a full build.
 
+### Backups
+
+`deploy/backup.sh`, run nightly by `oriyoni-backup.timer`, dumps Postgres and
+tars the media directory into `/srv/backups`, keeping 14 days. Those two are
+everything that cannot be rebuilt from this repository.
+
+It is a separate timer rather than a step in `deploy.sh` on purpose: a backup
+that only runs when someone deploys leaves exactly the gap you need it for.
+
+```bash
+sudo cp /srv/oriyoni/deploy/oriyoni-backup.{service,timer} /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now oriyoni-backup.timer
+sudo systemctl start oriyoni-backup.service   # run one now
+```
+
+Restoring a dump:
+
+```bash
+gunzip -c /srv/backups/db-YYYYMMDD-HHMMSS.sql.gz | psql "$DATABASE_URL"
+```
+
+**These live on the same disk as the database.** That covers a bad migration or
+a deleted table, which is the common case, and does nothing for the server
+itself failing. Copying `/srv/backups` somewhere else — and `.env` with it,
+since it holds the secret key, the database password and the mail credentials
+and exists in exactly one place — is what turns this into a real backup.
+
 ### What production must set
 
 | Variable | Why |

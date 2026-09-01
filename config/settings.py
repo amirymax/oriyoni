@@ -241,6 +241,12 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+# Django leaves this unset, which means socket-default: a slow or blackholed
+# SMTP host holds the connection open for minutes rather than failing. Mail is
+# sent inside the request here, so a handful of those tie up every gunicorn
+# worker and the whole site stops answering — a mail problem becoming an
+# outage. Ten seconds is generous for a relay that is actually working.
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=10)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ORIYONI <no-reply@oriyoni.shop>")
 # Where the contact form lands.
 CONTACT_EMAIL = env("CONTACT_EMAIL", default="hello@oriyoni.shop")
