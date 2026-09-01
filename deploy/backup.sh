@@ -12,7 +12,34 @@ APP_DIR=/srv/oriyoni
 BACKUP_DIR=/srv/backups
 KEEP_DAYS=14
 
-mkdir -p "$BACKUP_DIR"
+# Every check below reports what to run rather than just failing. A backup is
+# the one thing nobody looks at until they need it, so a bare "Permission
+# denied" in the journal is how you find out months later that it never ran.
+
+for command in pg_dump gzip tar gpg curl numfmt; do
+    if ! command -v "$command" > /dev/null; then
+        echo "error: $command is not installed." >&2
+        echo "  pg_dump comes from postgresql-client; the rest from coreutils," >&2
+        echo "  tar, gnupg and curl." >&2
+        exit 1
+    fi
+done
+
+# /srv is owned by root on a stock Ubuntu, so this directory has to be made
+# once by hand — the service runs unprivileged and cannot create it.
+if [ ! -d "$BACKUP_DIR" ] && ! mkdir -p "$BACKUP_DIR" 2> /dev/null; then
+    echo "error: $BACKUP_DIR does not exist and cannot be created by $(id -un)." >&2
+    echo "  Create it once:" >&2
+    echo "    sudo mkdir -p $BACKUP_DIR && sudo chown $(id -un):$(id -gn) $BACKUP_DIR" >&2
+    exit 1
+fi
+
+if [ ! -w "$BACKUP_DIR" ]; then
+    echo "error: $BACKUP_DIR is not writable by $(id -un)." >&2
+    echo "    sudo chown $(id -un):$(id -gn) $BACKUP_DIR" >&2
+    exit 1
+fi
+
 STAMP=$(date +%Y%m%d-%H%M%S)
 
 # Read the URL from .env rather than hardcoding credentials here, so there is

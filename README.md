@@ -376,6 +376,9 @@ It is a separate timer rather than a step in `deploy.sh` on purpose: a backup
 that only runs when someone deploys leaves exactly the gap you need it for.
 
 ```bash
+# /srv is root-owned, and the service runs unprivileged, so this one is manual.
+sudo mkdir -p /srv/backups && sudo chown deploy:deploy /srv/backups
+
 sudo cp /srv/oriyoni/deploy/oriyoni-backup.{service,timer} /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now oriyoni-backup.timer
