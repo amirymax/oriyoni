@@ -119,16 +119,38 @@ if [ "$ARCHIVE_SIZE" -gt 49000000 ]; then
     exit 0
 fi
 
-if curl -sf --max-time 120 \
+# The response body is kept rather than discarded. Telegram explains itself in
+# it — a revoked token, a chat the bot was never started in and a file too
+# large are three different problems that all surface as one failed curl, and
+# without the body the journal says only that something went wrong.
+#
+# No -f, because -f makes curl exit silently on an HTTP error and throw away
+# the very explanation this needs.
+RESPONSE=$(
+    curl -s --max-time 120 --write-out '\n%{http_code}' \
         -F "chat_id=$TG_CHAT" \
         -F "document=@$ARCHIVE" \
         -F "caption=ORIYONI backup $STAMP · $(numfmt --to=iec "$ARCHIVE_SIZE") · AES256" \
-        "https://api.telegram.org/bot$TG_TOKEN/sendDocument" > /dev/null; then
+        "https://api.telegram.org/bot$TG_TOKEN/sendDocument" 2>&1
+) || true
+
+HTTP_CODE=$(printf '%s' "$RESPONSE" | tail -n 1)
+BODY=$(printf '%s' "$RESPONSE" | sed '$d')
+
+if [ "$HTTP_CODE" = "200" ]; then
     echo "sent encrypted dump to Telegram"
 else
-    # Not fatal. The local backup already succeeded, and failing here would
-    # mark the timer red for something that did its actual job.
-    echo "warning: could not send the dump to Telegram" >&2
+    # Not fatal. The local backup already succeeded, and failing the unit here
+    # would mark the timer red for something that did its actual job.
+    echo "warning: Telegram upload failed (HTTP ${HTTP_CODE:-none})" >&2
+    # An empty code means curl never got a response at all — DNS, a firewall,
+    # or a host that blocks Telegram.
+    if [ -z "$HTTP_CODE" ] || [ "$HTTP_CODE" = "000" ]; then
+        echo "         No response. Check the server can reach api.telegram.org:" >&2
+        echo "           curl -sS -m 15 https://api.telegram.org" >&2
+    else
+        echo "         ${BODY:0:300}" >&2
+    fi
 fi
 
 # Removed either way: the encrypted copy exists only to be uploaded, and
