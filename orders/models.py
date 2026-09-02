@@ -16,7 +16,7 @@ from django.utils import timezone
 from catalog.models import ProductVariant
 from core.models import TimeStampedModel
 
-# Matches the storefront's promise of free shipping over $120.
+# Matches the storefront's promise of free shipping over 120 ₽.
 FREE_SHIPPING_THRESHOLD = Decimal("120.00")
 SHIPPING_FLAT_RATE = Decimal("12.00")
 

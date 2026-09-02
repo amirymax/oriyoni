@@ -48,6 +48,10 @@ class TestMessage:
         assert order.shipping_name not in message
         assert order.shipping_line1 not in message
 
+    def test_it_states_the_total_in_rubles(self, order):
+        # 2 × 48.00 plus 12.00 flat-rate shipping.
+        assert "108.00 ₽" in build_message(order, item_count=2)
+
     def test_it_counts_a_single_item_in_the_singular(self, order):
         assert "1 item ·" in build_message(order, item_count=1)
         assert "2 items ·" in build_message(order, item_count=2)

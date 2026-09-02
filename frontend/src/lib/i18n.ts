@@ -28,7 +28,7 @@ export function fmt(template: string, vars: Record<string, string | number>) {
 const en = {
   // Announcement
   announcePromo: "10% off your first order with code",
-  announceShipping: "Free shipping over $120",
+  announceShipping: "Free shipping over ₽120",
   announceDismiss: "Dismiss announcement",
 
   // Navigation
@@ -92,7 +92,7 @@ const en = {
 
   // Trust bar
   trustShippingTitle: "Free Shipping",
-  trustShippingCopy: "On all orders over $120",
+  trustShippingCopy: "On all orders over ₽120",
   trustReturnsTitle: "Easy 30-Day Returns",
   trustReturnsCopy: "Didn't fit? Send it back",
   trustSecureTitle: "Secure Checkout",
@@ -175,7 +175,7 @@ const en = {
   pdpDetails: "Details & Care",
   pdpShipping: "Shipping & Returns",
   pdpShippingCopy:
-    "Free shipping on orders over $120. Delivered in 3–5 business days. Not the right fit? Return it within 30 days for a full refund.",
+    "Free shipping on orders over ₽120. Delivered in 3–5 business days. Not the right fit? Return it within 30 days for a full refund.",
   pdpRelated: "You May Also Like",
   qtyDecrease: "Decrease quantity",
   qtyIncrease: "Increase quantity",
@@ -361,7 +361,7 @@ export type Dict = Record<keyof typeof en, string>;
 const ru: Dict = {
   // Announcement
   announcePromo: "Скидка 10% на первый заказ по промокоду",
-  announceShipping: "Бесплатная доставка от $120",
+  announceShipping: "Бесплатная доставка от 120 ₽",
   announceDismiss: "Закрыть объявление",
 
   // Navigation
@@ -424,7 +424,7 @@ const ru: Dict = {
 
   // Trust bar
   trustShippingTitle: "Бесплатная доставка",
-  trustShippingCopy: "При заказе от $120",
+  trustShippingCopy: "При заказе от 120 ₽",
   trustReturnsTitle: "Возврат 30 дней",
   trustReturnsCopy: "Не подошло? Просто верните",
   trustSecureTitle: "Безопасная оплата",
@@ -507,7 +507,7 @@ const ru: Dict = {
   pdpDetails: "Состав и уход",
   pdpShipping: "Доставка и возврат",
   pdpShippingCopy:
-    "Бесплатная доставка при заказе от $120. Срок доставки — 3–5 рабочих дней. Не подошло? Вернём деньги в течение 30 дней.",
+    "Бесплатная доставка при заказе от 120 ₽. Срок доставки — 3–5 рабочих дней. Не подошло? Вернём деньги в течение 30 дней.",
   pdpRelated: "Вам может понравиться",
   qtyDecrease: "Уменьшить количество",
   qtyIncrease: "Увеличить количество",
@@ -704,7 +704,8 @@ export function plural(t: Dict, lang: Lang, n: number) {
 export function formatPrice(value: number, lang: Lang) {
   return new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "RUB",
+    currencyDisplay: "narrowSymbol",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);

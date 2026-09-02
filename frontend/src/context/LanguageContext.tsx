@@ -26,7 +26,7 @@ type LanguageContextValue = {
   t: Dict;
   /** Resolve a localized value (product name, colour, …). */
   l: <T>(value: Localized<T>) => T;
-  /** Format a USD price for the active locale. */
+  /** Format a ruble price for the active locale. */
   price: (value: number) => string;
   /** Count with the correct plural form for the active language. */
   count: (n: number) => string;

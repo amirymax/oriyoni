@@ -20,7 +20,7 @@ def build_message(order, item_count):
     return (
         f"🛍 <b>New order {escape(order.number)}</b>\n"
         f"{item_count} item{'s' if item_count != 1 else ''} · "
-        f"${escape(f'{order.total:.2f}')}\n\n"
+        f"{escape(f'{order.total:.2f}')} ₽\n\n"
         f"{escape(settings.FRONTEND_URL)}/admin/orders/{order.pk}"
     )
 

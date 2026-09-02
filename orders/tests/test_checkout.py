@@ -84,7 +84,7 @@ class TestTotals:
         assert body["total"] == 108.0
 
     def test_shipping_is_free_over_the_threshold(self, api, variant):
-        """The storefront promises free delivery over $120."""
+        """The storefront promises free delivery over 120 ₽."""
         add_to_cart(api, variant, 3)  # 144.00
 
         body = checkout(api, email="guest@example.com").json()
