@@ -245,7 +245,7 @@ export function ProductForm({
           </select>
         </div>
         <TextField
-          label="Цена"
+          label="Цена, ₽"
           type="number"
           value={price}
           onChange={setPrice}
@@ -253,7 +253,7 @@ export function ProductForm({
           required
         />
         <TextField
-          label="Цена до скидки"
+          label="Цена до скидки, ₽"
           type="number"
           value={compareAtPrice}
           onChange={setCompareAtPrice}

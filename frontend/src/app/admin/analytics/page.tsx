@@ -13,7 +13,13 @@ import {
   YAxis,
 } from "recharts";
 import { ApiError } from "@/lib/api";
-import { getAnalytics, type Analytics, type Granularity, type OrderStatus } from "@/lib/admin";
+import {
+  formatMoney,
+  getAnalytics,
+  type Analytics,
+  type Granularity,
+  type OrderStatus,
+} from "@/lib/admin";
 
 const INK = "#0a0a0a";
 const CHAMPAGNE = "#c9b483";
@@ -108,7 +114,7 @@ export default function AdminAnalyticsPage() {
             <div className="border border-line px-5 py-5">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-ash">Средний чек</p>
               <p className="mt-2 font-display text-2xl font-bold text-ink">
-                ${Number(data.average_order_value).toFixed(2)}
+                {formatMoney(data.average_order_value)}
               </p>
             </div>
             <div className="border border-line px-5 py-5">
@@ -127,7 +133,7 @@ export default function AdminAnalyticsPage() {
                   <YAxis tick={{ fontSize: 11, fill: "#8c8a80" }} width={60} />
                   <Tooltip
                     contentStyle={{ border: `1px solid ${LINE}`, borderRadius: 0, fontSize: 12 }}
-                    formatter={(value) => [`$${Number(value).toFixed(2)}`, "Выручка"]}
+                    formatter={(value) => [formatMoney(value as number), "Выручка"]}
                   />
                   <Line type="monotone" dataKey="revenue" stroke={INK} strokeWidth={2} dot={false} />
                 </LineChart>
@@ -159,7 +165,7 @@ export default function AdminAnalyticsPage() {
                         <tr key={p.product_slug} className="border-b border-line last:border-b-0">
                           <td className="px-4 py-3 text-ink">{p.name_en}</td>
                           <td className="px-4 py-3 text-right text-ink">{p.quantity}</td>
-                          <td className="px-4 py-3 text-right text-ink">${Number(p.revenue).toFixed(2)}</td>
+                          <td className="px-4 py-3 text-right text-ink">{formatMoney(p.revenue)}</td>
                         </tr>
                       ))
                     )}
@@ -178,7 +184,7 @@ export default function AdminAnalyticsPage() {
                     <YAxis tick={{ fontSize: 11, fill: "#8c8a80" }} width={60} />
                     <Tooltip
                       contentStyle={{ border: `1px solid ${LINE}`, borderRadius: 0, fontSize: 12 }}
-                      formatter={(value) => [`$${Number(value).toFixed(2)}`, "Выручка"]}
+                      formatter={(value) => [formatMoney(value as number), "Выручка"]}
                     />
                     <Bar dataKey="revenue" fill={CHAMPAGNE} />
                   </BarChart>

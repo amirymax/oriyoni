@@ -11,6 +11,24 @@ import { api, type Paginated } from "@/lib/api";
 
 // ------------------------------------------------------------------ shared --
 
+/**
+ * Money as the admin panel shows it: rubles, Russian grouping, kopecks kept.
+ *
+ * The panel is Russian-only, so this does not take a language the way the
+ * storefront's `formatPrice` does. It keeps two decimals because staff
+ * reconcile these figures against orders, where the kopecks matter.
+ */
+const MONEY = new Intl.NumberFormat("ru-RU", {
+  style: "currency",
+  currency: "RUB",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+export function formatMoney(value: number | string): string {
+  return MONEY.format(Number(value));
+}
+
 /** Builds a query string from a params object, dropping empty values. */
 function toQuery(params: Record<string, string | number | boolean | undefined | null>): string {
   const search = new URLSearchParams();

@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { DataTable, type Column } from "@/components/admin/DataTable";
-import { listCategories, listProducts, type CategoryAdmin, type Garment, type ProductListItem } from "@/lib/admin";
+import {
+  formatMoney,
+  listCategories,
+  listProducts,
+  type CategoryAdmin,
+  type Garment,
+  type ProductListItem,
+} from "@/lib/admin";
 
 const PAGE_SIZE = 20;
 const GARMENTS: Garment[] = ["tee", "hoodie", "cap", "beanie", "tote"];
@@ -81,9 +88,9 @@ export default function AdminProductsPage() {
       header: "Цена",
       render: (row) => (
         <span>
-          ${row.price.toFixed(2)}
+          {formatMoney(row.price)}
           {row.compare_at_price ? (
-            <span className="ml-1.5 text-ash line-through">${row.compare_at_price.toFixed(2)}</span>
+            <span className="ml-1.5 text-ash line-through">{formatMoney(row.compare_at_price)}</span>
           ) : null}
         </span>
       ),

@@ -6,7 +6,13 @@ import { Badge } from "@/components/Badge";
 import { FormError, FormNotice } from "@/components/form";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
-import { getUser, updateUser, type OrderStatus, type UserDetailAdmin } from "@/lib/admin";
+import {
+  formatMoney,
+  getUser,
+  updateUser,
+  type OrderStatus,
+  type UserDetailAdmin,
+} from "@/lib/admin";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "Ожидает оплаты",
@@ -129,7 +135,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ id: strin
                     <td className="px-4 py-3">
                       <Badge tone="outline">{STATUS_LABELS[order.status]}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-right text-ink">${order.total.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-ink">{formatMoney(order.total)}</td>
                     <td className="px-4 py-3 text-ink">{new Date(order.created_at).toLocaleDateString("ru-RU")}</td>
                   </tr>
                 ))}

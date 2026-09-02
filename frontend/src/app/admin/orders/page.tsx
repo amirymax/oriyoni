@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { DataTable, type Column } from "@/components/admin/DataTable";
-import { listOrders, type OrderListItem, type OrderStatus } from "@/lib/admin";
+import { formatMoney, listOrders, type OrderListItem, type OrderStatus } from "@/lib/admin";
 
 const PAGE_SIZE = 20;
 const STATUSES: OrderStatus[] = ["pending", "paid", "shipped", "delivered", "cancelled"];
@@ -59,7 +59,7 @@ export default function AdminOrdersPage() {
     { key: "number", header: "Заказ" },
     { key: "email", header: "Email" },
     { key: "item_count", header: "Товаров" },
-    { key: "total", header: "Сумма", render: (row) => `$${row.total.toFixed(2)}` },
+    { key: "total", header: "Сумма", render: (row) => formatMoney(row.total) },
     { key: "status", header: "Статус", render: (row) => <Badge tone="outline">{STATUS_LABELS[row.status]}</Badge> },
     {
       key: "created_at",

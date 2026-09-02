@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/Badge";
 import { ApiError } from "@/lib/api";
-import { getDashboard, type Dashboard, type OrderStatus } from "@/lib/admin";
+import { formatMoney, getDashboard, type Dashboard, type OrderStatus } from "@/lib/admin";
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "Ожидает оплаты",
@@ -32,7 +32,7 @@ export default function AdminDashboardPage() {
   if (!data) return <p className="text-sm text-graphite">Загрузка…</p>;
 
   const tiles: { label: string; value: string }[] = [
-    { label: "Выручка (оплаченные+)", value: `$${Number(data.revenue_total).toFixed(2)}` },
+    { label: "Выручка (оплаченные+)", value: formatMoney(data.revenue_total) },
     { label: "Заказы сегодня", value: String(data.orders_today) },
     { label: "Заказы за неделю", value: String(data.orders_this_week) },
     { label: "Заказы в ожидании", value: String(data.orders_pending) },
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
                     <td className="px-4 py-3">
                       <Badge tone="outline">{STATUS_LABELS[order.status]}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-right text-ink">${Number(order.total).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-ink">{formatMoney(order.total)}</td>
                     <td className="px-4 py-3 text-ink">{new Date(order.created_at).toLocaleDateString("ru-RU")}</td>
                   </tr>
                 ))}

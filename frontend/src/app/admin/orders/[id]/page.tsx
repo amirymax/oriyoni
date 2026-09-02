@@ -3,7 +3,13 @@
 import { use, useEffect, useState } from "react";
 import { FormError, FormNotice } from "@/components/form";
 import { ApiError } from "@/lib/api";
-import { getOrder, updateOrderStatus, type OrderDetailAdmin, type OrderStatus } from "@/lib/admin";
+import {
+  formatMoney,
+  getOrder,
+  updateOrderStatus,
+  type OrderDetailAdmin,
+  type OrderStatus,
+} from "@/lib/admin";
 
 const STATUSES: OrderStatus[] = ["pending", "paid", "shipped", "delivered", "cancelled"];
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -110,8 +116,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       {item.color_name_en} · {item.size}
                     </td>
                     <td className="px-4 py-3 text-right text-ink">{item.quantity}</td>
-                    <td className="px-4 py-3 text-right text-ink">${item.unit_price.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right text-ink">${item.line_total.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-ink">{formatMoney(item.unit_price)}</td>
+                    <td className="px-4 py-3 text-right text-ink">{formatMoney(item.line_total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -121,15 +127,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           <div className="mt-4 ml-auto max-w-xs space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-ash">Подытог</span>
-              <span className="text-ink">${order.subtotal.toFixed(2)}</span>
+              <span className="text-ink">{formatMoney(order.subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-ash">Доставка</span>
-              <span className="text-ink">${order.shipping.toFixed(2)}</span>
+              <span className="text-ink">{formatMoney(order.shipping)}</span>
             </div>
             <div className="flex justify-between font-semibold">
               <span className="text-ink">Итого</span>
-              <span className="text-ink">${order.total.toFixed(2)}</span>
+              <span className="text-ink">{formatMoney(order.total)}</span>
             </div>
           </div>
 
