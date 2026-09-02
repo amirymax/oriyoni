@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cinzel, Manrope, Syne } from "next/font/google";
+import Script from "next/script";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -63,6 +64,39 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </CartProvider>
           </AuthProvider>
         </LanguageProvider>
+
+        {/* Yandex.Metrika counter.
+
+            The tag is Metrika's own, pasted as given. It is wrapped in a
+            hostname check so a local dev server never reports visits: without
+            it, every page we open while working shows up in the shop's
+            reports as a customer. */}
+        <Script id="yandex-metrika" strategy="afterInteractive">
+          {`
+            if (location.hostname !== "localhost" && location.hostname !== "127.0.0.1") {
+              (function(m,e,t,r,i,k,a){
+                  m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+                  m[i].l=1*new Date();
+                  for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+                  k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+              })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=112249278', 'ym');
+
+              ym(112249278, 'init', {ssr:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+            }
+          `}
+        </Script>
+        <noscript>
+          <div>
+            {/* next/image is a React component and needs JavaScript, which is
+                the one thing this fallback cannot assume. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://mc.yandex.ru/watch/112249278"
+              style={{ position: "absolute", left: "-9999px" }}
+              alt=""
+            />
+          </div>
+        </noscript>
       </body>
     </html>
   );
