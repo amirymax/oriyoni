@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useMemo, useState, type FormEvent } from "react";
-import { FormError, FormNotice, SubmitButton } from "@/components/form";
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
+import { SubmitButton } from "@/components/form";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { useToast, type ToastInput } from "@/components/admin/Toast";
 import { ApiError } from "@/lib/api";
 import {
   createProduct,
@@ -33,6 +34,46 @@ const TAG_LABELS: Record<ProductTag, string> = {
   sale: "Скидка",
   bestseller: "Хит продаж",
 };
+
+/**
+ * How each API field name is spelled in the form, so a failed save can name
+ * the field an operator is looking at rather than the serializer's key.
+ */
+const FIELD_LABELS: Record<string, string> = {
+  slug: "Slug",
+  name_en: "Название (EN)",
+  name_ru: "Название (RU)",
+  category: "Категория",
+  garment: "Тип",
+  price: "Цена",
+  compare_at_price: "Цена до скидки",
+  tags: "Теги",
+  is_active: "Активен",
+  position: "Позиция",
+  description_en: "Описание (EN)",
+  description_ru: "Описание (RU)",
+  details_en: "Характеристики (EN)",
+  details_ru: "Характеристики (RU)",
+  variants: "Варианты",
+  images: "Фото",
+};
+
+/** The lines a failure toast lists under its title. */
+function errorLines(caught: unknown): string[] {
+  if (!(caught instanceof ApiError)) {
+    return ["Проверьте соединение и попробуйте ещё раз."];
+  }
+
+  const lines = Object.entries(caught.errors).flatMap(([field, messages]) =>
+    messages.map((message) =>
+      field === "non_field_errors" ? message : `${FIELD_LABELS[field] ?? field}: ${message}`
+    )
+  );
+
+  // A 403 or a 500 carries a plain `detail` and no field errors — show that
+  // instead of an empty toast.
+  return lines.length > 0 ? lines : [caught.message];
+}
 
 type VariantRow = {
   id?: number;
@@ -65,6 +106,7 @@ export function ProductForm({
   initial?: ProductDetailAdmin;
 }) {
   const router = useRouter();
+  const { showToast, dismissToast } = useToast();
   const categoryFieldId = useId();
   const garmentFieldId = useId();
   const descriptionEnFieldId = useId();
@@ -95,9 +137,17 @@ export function ProductForm({
   const [images, setImages] = useState(initial?.images ?? []);
 
   const [error, setError] = useState<ApiError | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // Errors sit there until dismissed, so a second failed save would stack a
+  // duplicate on top of the first. This form only ever has one outcome to
+  // report, so the previous one is retired when a new one arrives.
+  const lastToastId = useRef<number | null>(null);
+
+  function notify(toast: ToastInput) {
+    if (lastToastId.current !== null) dismissToast(lastToastId.current);
+    lastToastId.current = showToast(toast);
+  }
 
   useEffect(() => {
     listCategories({ page: 1 })
@@ -140,7 +190,6 @@ export function ProductForm({
     event.preventDefault();
     setPending(true);
     setError(null);
-    setNotice(null);
 
     const body: ProductWriteBody = {
       slug,
@@ -172,13 +221,15 @@ export function ProductForm({
     try {
       if (mode === "new") {
         const created = await createProduct(body);
+        notify({ tone: "success", title: "Товар создан." });
         router.push(`/admin/products/${created.id}`);
       } else if (productId) {
         await updateProduct(productId, body);
-        setNotice("Товар сохранён.");
+        notify({ tone: "success", title: "Товар сохранён." });
       }
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught : new ApiError(0, "Не удалось сохранить товар."));
+      setError(caught instanceof ApiError ? caught : null);
+      notify({ tone: "error", title: "Не удалось сохранить товар.", details: errorLines(caught) });
     } finally {
       setPending(false);
     }
@@ -193,18 +244,21 @@ export function ProductForm({
     setError(null);
     try {
       await deleteProduct(productId);
+      notify({ tone: "success", title: "Товар удалён." });
       router.push("/admin/products");
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught : new ApiError(0, "Не удалось удалить товар."));
+      setError(caught instanceof ApiError ? caught : null);
+      notify({ tone: "error", title: "Не удалось удалить товар.", details: errorLines(caught) });
       setDeleting(false);
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10" noValidate>
-      <FormError>{error?.banner}</FormError>
-      {notice ? <FormNotice>{notice}</FormNotice> : null}
-
+      {/* The outcome of a save is reported by a corner toast rather than a
+          banner here: this form is several screens tall, and a banner at the
+          top is out of sight from the save button at the bottom. Field-level
+          errors stay inline, next to the input that has to change. */}
       <section className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <TextField label="Название (EN)" value={nameEn} onChange={setNameEn} error={error?.field("name_en")} required />
         <TextField label="Название (RU)" value={nameRu} onChange={setNameRu} error={error?.field("name_ru")} required />

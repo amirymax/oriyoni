@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { AdminShell } from "@/components/admin/AdminShell";
+import { ToastProvider } from "@/components/admin/Toast";
 import { useAuth } from "@/context/AuthContext";
 
 /**
@@ -42,5 +43,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+    <ToastProvider>
+      <AdminShell>{children}</AdminShell>
+    </ToastProvider>
+  );
 }
