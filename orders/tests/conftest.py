@@ -2,9 +2,10 @@ from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 
-from catalog.models import Category, Color, Product, ProductVariant
+from catalog.models import Category, Color, Product, ProductImage, ProductVariant
 
 User = get_user_model()
 
@@ -13,6 +14,12 @@ PASSWORD = "correct-horse-battery"
 CHECKOUT = "/api/orders/checkout/"
 ORDERS = "/api/orders/"
 CART_ITEMS = "/api/cart/items/"
+
+# The smallest thing ImageField will accept as a picture.
+ONE_PIXEL_GIF = (
+    b"GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00"
+    b"\x01\x00\x00\x02\x02D\x01\x00;"
+)
 
 ADDRESS = {
     "shipping_name": "Ada Lovelace",
@@ -94,3 +101,23 @@ def add_to_cart(api, variant, quantity=1):
 
 def checkout(api, **overrides):
     return api.post(CHECKOUT, {**ADDRESS, **overrides}, format="json")
+
+
+@pytest.fixture(autouse=True)
+def _tmp_media_root(settings, tmp_path):
+    """Keep product photos created by a test out of the repo's media/."""
+    settings.MEDIA_ROOT = tmp_path
+
+
+@pytest.fixture
+def photograph(db):
+    """Attaches a photo to a variant's product, as an admin upload would."""
+
+    def _attach(variant, name="front.gif"):
+        return ProductImage.objects.create(
+            product=variant.product,
+            color=variant.color,
+            image=SimpleUploadedFile(name, ONE_PIXEL_GIF, content_type="image/gif"),
+        )
+
+    return _attach

@@ -94,6 +94,37 @@ class TestDetail:
         assert signed_in.get(order_url("ORI-20260101-AAAAAA")).status_code == 404
 
 
+class TestPhotos:
+    """An order line draws the product's photo, looked up live.
+
+    Everything else on the line is a snapshot taken at the sale; the photo is
+    not, because a URL frozen into the row would break the first time the shop
+    replaced that file. Null means "draw a blank square".
+    """
+
+    def test_a_line_carries_its_products_photo(self, signed_in, variant, photograph):
+        photograph(variant)
+
+        order = place(signed_in, variant)
+
+        assert order["items"][0]["image"].endswith("front.gif")
+
+    def test_a_product_without_photos_has_none(self, signed_in, variant):
+        assert place(signed_in, variant)["items"][0]["image"] is None
+
+    def test_a_line_whose_variant_was_deleted_still_reads(self, signed_in, variant, photograph):
+        """The line keeps its own copy of the text; only the photo goes."""
+        photograph(variant)
+        number = place(signed_in, variant)["number"]
+        variant.delete()
+
+        item = signed_in.get(order_url(number)).json()["items"][0]
+
+        assert item["image"] is None
+        assert item["name"]["en"] == "Crown Tee"
+        assert item["size"] == "M"
+
+
 class TestNumbers:
     def test_numbers_are_unique_across_orders(self, signed_in, make_variant):
         numbers = {

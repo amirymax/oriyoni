@@ -271,6 +271,8 @@ export type OrderItemAdmin = {
   name_ru: string;
   color_name_en: string;
   color_name_ru: string;
+  /** The product's photo, or null — a deleted variant, or no photography. */
+  image: string | null;
   size: string;
   unit_price: number;
   quantity: number;

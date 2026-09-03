@@ -4,9 +4,12 @@ from decimal import Decimal
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 
+from catalog.models import Category, Color, Product, ProductImage, ProductVariant
 from orders.models import Order, OrderItem, OrderStatus
+from orders.tests.conftest import ONE_PIXEL_GIF
 
 User = get_user_model()
 
@@ -113,6 +116,40 @@ class TestDetail:
         assert body["shipping_name"] == "Ada Lovelace"
         assert len(body["items"]) == 1
         assert body["items"][0]["sku"] == "SKU-1"
+
+    def test_a_line_whose_variant_is_gone_has_no_photo(self, staff_client, order):
+        """Nothing left to look the photo up through; the text still reads."""
+        item = staff_client.get(detail(order.id)).json()["items"][0]
+
+        assert item["image"] is None
+        assert item["name_en"] == "Crown Tee"
+
+    def test_a_line_carries_its_products_photo(self, staff_client, order):
+        category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
+        black = Color.objects.create(slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a")
+        product = Product.objects.create(
+            slug="crown-tee",
+            name_en="Crown Tee",
+            name_ru="Футболка Crown",
+            category=category,
+            garment="tee",
+            price=Decimal("48.00"),
+            description_en="A tee.",
+            description_ru="Футболка.",
+        )
+        ProductImage.objects.create(
+            product=product,
+            image=SimpleUploadedFile("front.gif", ONE_PIXEL_GIF, content_type="image/gif"),
+        )
+        item = order.items.get()
+        item.variant = ProductVariant.objects.create(
+            product=product, color=black, size="M", sku="SKU-1", stock=1
+        )
+        item.save(update_fields=["variant"])
+
+        body = staff_client.get(detail(order.id)).json()
+
+        assert body["items"][0]["image"].endswith("front.gif")
 
 
 class TestUpdate:

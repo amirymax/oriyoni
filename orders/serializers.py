@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from catalog.photos import photo_url_for
 from core.serializers import LocalizedField
 from orders.models import Order, OrderItem
 
@@ -27,6 +28,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     color_name = LocalizedField("color_name")
     unit_price = _money()
     line_total = _money()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
@@ -35,11 +37,34 @@ class OrderItemSerializer(serializers.ModelSerializer):
             "product_slug",
             "name",
             "color_name",
+            "image",
             "size",
             "quantity",
             "unit_price",
             "line_total",
         ]
+
+    def get_image(self, item):
+        """The product's photo, looked up live rather than snapshotted.
+
+        Everything else on the line is frozen at the moment of sale, because
+        the name, colour and price are the terms of the sale. A thumbnail only
+        helps someone recognise what they bought — and a URL frozen into the
+        row would rot the first time that photo is replaced or deleted from the
+        admin, leaving a broken image where this returns None and the page
+        simply draws a blank square.
+
+        None also covers a line whose variant has since been deleted, which is
+        why the model keeps its own copy of the text.
+        """
+        if item.variant is None:
+            return None
+
+        return photo_url_for(
+            item.variant.product,
+            item.variant.color_id,
+            self.context.get("request"),
+        )
 
 
 class OrderSerializer(serializers.ModelSerializer):

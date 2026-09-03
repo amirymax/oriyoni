@@ -48,7 +48,7 @@ class CheckoutView(APIView):
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
     def with_items(self, order):
-        return Order.objects.prefetch_related("items").get(pk=order.pk)
+        return Order.objects.with_items().get(pk=order.pk)
 
 
 class OrderListView(ListAPIView):
@@ -62,7 +62,7 @@ class OrderListView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).prefetch_related("items")
+        return Order.objects.filter(user=self.request.user).with_items()
 
 
 class OrderDetailView(RetrieveAPIView):
@@ -73,4 +73,4 @@ class OrderDetailView(RetrieveAPIView):
     def get_queryset(self):
         # Scoped to the caller, so another shopper's order number is simply
         # not found rather than forbidden — which would confirm it exists.
-        return Order.objects.filter(user=self.request.user).prefetch_related("items")
+        return Order.objects.filter(user=self.request.user).with_items()

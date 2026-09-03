@@ -10,12 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-import {
-  api,
-  API_URL,
-  type Cart as ApiCart,
-  type CartLine as ApiCartLine,
-} from "@/lib/api";
+import { api, mediaUrl, type Cart as ApiCart, type CartLine as ApiCartLine } from "@/lib/api";
 import type { Localized } from "@/lib/i18n";
 import type { Garment, ProductPhoto } from "@/lib/products";
 
@@ -78,13 +73,7 @@ function toLine(line: ApiCartLine): CartLine {
     swatchHex: line.color.hex,
     swatchDark: line.color.is_dark,
     photo: line.image
-      ? {
-          // Relative when the API answers without a request in context, which
-          // is how the cart endpoint serializes — an <img> needs the host.
-          url: line.image.startsWith("http") ? line.image : `${API_URL}${line.image}`,
-          colorId: line.color.slug,
-          alt: "",
-        }
+      ? { url: mediaUrl(line.image), colorId: line.color.slug, alt: "" }
       : null,
     quantity: line.quantity,
     available: line.available,

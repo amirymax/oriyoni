@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from cart.models import MAX_QUANTITY_PER_LINE, CartItem
 from catalog.models import ProductVariant
+from catalog.photos import photo_url_for
 from catalog.serializers import ColorSerializer
 from core.serializers import LocalizedField
 
@@ -50,26 +51,15 @@ class CartItemSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def get_image(self, item):
-        """The photo for this line's colourway, if the product has any.
+        """The photo for this line's colourway, so the drawer draws itself.
 
-        Same rule the storefront uses on a product card — a photo tagged with
-        the colour, else one that stands for the product, else the first —
-        applied here so the cart does not have to fetch each product to draw
-        a thumbnail. Null falls back to the drawn mockup.
+        Null falls back to the mockup, same as a product with no photography.
         """
-        photos = list(item.variant.product.images.all())
-        if not photos:
-            return None
-
-        color_id = item.variant.color_id
-        chosen = next(
-            (photo for photo in photos if photo.color_id == color_id),
-            next((photo for photo in photos if photo.color_id is None), photos[0]),
+        return photo_url_for(
+            item.variant.product,
+            item.variant.color_id,
+            self.context.get("request"),
         )
-
-        url = chosen.image.url
-        request = self.context.get("request")
-        return request.build_absolute_uri(url) if request else url
 
 
 class CartSerializer(serializers.Serializer):

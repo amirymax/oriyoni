@@ -36,7 +36,12 @@ class OrderAdminViewSet(
         return OrderAdminDetailSerializer
 
     def get_queryset(self):
-        queryset = Order.objects.select_related("user").prefetch_related("items")
+        # The list only counts the lines; the detail page draws each one,
+        # photo and all, so it is the only action that needs the full chain.
+        queryset = Order.objects.select_related("user")
+        queryset = (
+            queryset.prefetch_related("items") if self.action == "list" else queryset.with_items()
+        )
         params = self.request.query_params
 
         if order_status := params.get("status"):

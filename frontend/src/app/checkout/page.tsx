@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { GuestCheckoutPrompt } from "@/components/GuestCheckoutPrompt";
 import { PageHeader } from "@/components/PageHeader";
+import { Thumbnail } from "@/components/Thumbnail";
 import { Field, FormError, SubmitButton } from "@/components/form";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -258,8 +259,13 @@ function Confirmation({ order }: { order: Order }) {
           <div className="border border-line">
             <ul className="divide-y divide-line">
               {order.items.map((item) => (
-                <li key={item.sku} className="flex justify-between gap-4 px-5 py-4 text-sm">
-                  <span className="min-w-0">
+                <li key={item.sku} className="flex items-center gap-4 px-5 py-4 text-sm">
+                  <Thumbnail
+                    src={item.image}
+                    alt={l(item.name)}
+                    className="h-16 w-14 shrink-0"
+                  />
+                  <span className="min-w-0 flex-1">
                     <span className="text-ink">{l(item.name)}</span>
                     <span className="mt-0.5 block text-xs text-ash">
                       {l(item.color_name)} · {item.size} × {item.quantity}

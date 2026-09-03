@@ -45,6 +45,16 @@ class OrderStatus(models.TextChoices):
     CANCELLED = "cancelled", "Cancelled"
 
 
+class OrderQuerySet(models.QuerySet):
+    def with_items(self):
+        """Preload the lines and the photo each one draws.
+
+        The photo is read through the variant, so the chain has to come with
+        it — otherwise an order with ten lines costs ten queries to render.
+        """
+        return self.prefetch_related("items__variant__product__images")
+
+
 class Order(TimeStampedModel):
     number = models.CharField(max_length=32, unique=True, default=generate_order_number)
 
@@ -78,6 +88,8 @@ class Order(TimeStampedModel):
     shipping_phone = models.CharField(max_length=32, blank=True)
 
     note = models.TextField(blank=True, help_text="Anything the shopper asked for.")
+
+    objects = OrderQuerySet.as_manager()
 
     class Meta:
         ordering = ["-created_at"]

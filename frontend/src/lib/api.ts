@@ -16,6 +16,17 @@ export const API_URL = (
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"
 ).replace(/\/$/, "");
 
+/**
+ * An uploaded file's URL, ready for `<img src>`.
+ *
+ * DRF returns an absolute URL when the serializer can see the request, and a
+ * bare `/media/…` path when it cannot — the cart and the wishlist serialize
+ * without one. Callers should not have to know which they got.
+ */
+export function mediaUrl(path: string): string {
+  return path.startsWith("http") ? path : `${API_URL}${path}`;
+}
+
 /** The `{detail, errors}` shape every endpoint returns on failure. */
 export class ApiError extends Error {
   readonly status: number;
@@ -228,6 +239,8 @@ export type OrderLine = {
   quantity: number;
   unit_price: number;
   line_total: number;
+  /** The product's photo, or null — a deleted variant, or no photography. */
+  image: string | null;
 };
 
 export type Order = {

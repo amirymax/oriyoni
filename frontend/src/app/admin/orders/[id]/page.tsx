@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { FormError, FormNotice } from "@/components/form";
+import { Thumbnail } from "@/components/Thumbnail";
 import { ApiError } from "@/lib/api";
 import {
   formatMoney,
@@ -109,8 +110,17 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {order.items.map((item) => (
                   <tr key={item.id} className="border-b border-line last:border-b-0">
                     <td className="px-4 py-3">
-                      <p className="text-ink">{item.name_en}</p>
-                      <p className="text-xs text-ash">{item.sku}</p>
+                      <div className="flex items-center gap-3">
+                        <Thumbnail
+                          src={item.image}
+                          alt={item.name_en}
+                          className="h-14 w-12 shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="text-ink">{item.name_en}</p>
+                          <p className="text-xs text-ash">{item.sku}</p>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-ink">
                       {item.color_name_en} · {item.size}

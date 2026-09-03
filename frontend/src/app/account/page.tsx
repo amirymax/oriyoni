@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { VerifyEmailNotice } from "@/components/VerifyEmailNotice";
 import { Field, FormError, FormNotice, SubmitButton } from "@/components/form";
+import { Thumbnail } from "@/components/Thumbnail";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { ApiError, api, type Order, type Paginated } from "@/lib/api";
@@ -226,6 +227,19 @@ function OrderHistory() {
         <ul className="divide-y divide-line border border-line">
           {orders.map((order) => (
             <li key={order.number} className="flex flex-wrap items-center gap-4 px-5 py-4">
+              {/* A few thumbnails, not the whole order — the line already says
+                  how many pieces it holds, and a large order would otherwise
+                  push its own number off the row. */}
+              <div className="flex shrink-0 gap-1.5">
+                {order.items.slice(0, 3).map((item) => (
+                  <Thumbnail
+                    key={item.sku}
+                    src={item.image}
+                    alt={l(item.name)}
+                    className="h-14 w-12"
+                  />
+                ))}
+              </div>
               <div className="min-w-0 flex-1">
                 <p className="font-[family-name:var(--font-manrope)] text-sm font-semibold text-ink">
                   {order.number}

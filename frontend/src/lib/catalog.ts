@@ -10,6 +10,7 @@
 
 import {
   API_URL,
+  mediaUrl,
   type ApiProduct,
   type ApiProductDetail,
   type ApiProductImage,
@@ -51,9 +52,7 @@ function toColor(color: ApiProduct["colors"][number]): ProductColor {
 
 function toPhoto(image: ApiProductImage): ProductPhoto {
   return {
-    // DRF returns an absolute URL when it can see the request, and a bare
-    // `/media/…` path when it cannot — an `<img>` needs the host either way.
-    url: image.image.startsWith("http") ? image.image : `${API_URL}${image.image}`,
+    url: mediaUrl(image.image),
     colorId: image.color,
     alt: image.alt_text,
   };

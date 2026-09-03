@@ -2,6 +2,7 @@
 
 from rest_framework import serializers
 
+from catalog.photos import photo_url_for
 from orders.models import Order, OrderItem
 from orders.serializers import ADDRESS_FIELDS
 
@@ -15,6 +16,7 @@ def _money(**kwargs):
 class OrderItemAdminSerializer(serializers.ModelSerializer):
     unit_price = _money()
     line_total = _money()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
@@ -26,11 +28,27 @@ class OrderItemAdminSerializer(serializers.ModelSerializer):
             "name_ru",
             "color_name_en",
             "color_name_ru",
+            "image",
             "size",
             "unit_price",
             "quantity",
             "line_total",
         ]
+
+    def get_image(self, item):
+        """Live, like the storefront's — see `orders.serializers` for why.
+
+        None for a line whose variant has been deleted, or whose product has
+        no photography.
+        """
+        if item.variant is None:
+            return None
+
+        return photo_url_for(
+            item.variant.product,
+            item.variant.color_id,
+            self.context.get("request"),
+        )
 
 
 class OrderAdminListSerializer(serializers.ModelSerializer):
