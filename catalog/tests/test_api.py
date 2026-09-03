@@ -45,9 +45,7 @@ class TestListShape:
         assert product["description"]["ru"] == "Описание по-русски."
         assert product["description"]["tg"] == "Тавсиф ба забони тоҷикӣ."
 
-    def test_an_untranslated_column_borrows_the_next_best_language(
-        self, api, make_product, tees
-    ):
+    def test_an_untranslated_column_borrows_the_next_best_language(self, api, make_product, tees):
         """A product added before Tajik existed reads in Russian, not a blank."""
         make_product("older-tee", tees, name_tg="", description_tg="")
 
