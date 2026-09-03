@@ -55,9 +55,7 @@ class TestAdding:
         """Null is the storefront's cue to fall back to the drawn garment."""
         assert add(api, variant).json()["items"][0]["image"] is None
 
-    def test_the_line_carries_the_photo_for_its_colourway(
-        self, api, variant, tee, black, bone
-    ):
+    def test_the_line_carries_the_photo_for_its_colourway(self, api, variant, tee, black, bone):
         from django.core.files.uploadedfile import SimpleUploadedFile
 
         from catalog.models import ProductImage
