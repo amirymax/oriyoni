@@ -79,7 +79,12 @@ class ProductQuerySet(models.QuerySet):
 
     def with_related(self):
         """Preload everything the list and detail serializers touch."""
-        return self.select_related("category").prefetch_related("variants__color")
+        return self.select_related("category").prefetch_related(
+            "variants__color",
+            # Photos carry their colourway, and the serializer reads its slug:
+            # a plain prefetch would then query once per photo.
+            models.Prefetch("images", queryset=ProductImage.objects.select_related("color")),
+        )
 
 
 class Product(TimeStampedModel):

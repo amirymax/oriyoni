@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from catalog.models import Category, Color, Product, ProductVariant
+from catalog.models import Category, Color, Product, ProductImage, ProductVariant
 from core.serializers import LocalizedField
 
 # Apparel runs small to large, and accessories carry the one-size token.
@@ -43,6 +43,22 @@ class VariantSerializer(serializers.ModelSerializer):
         fields = ["sku", "color", "size", "in_stock"]
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    """A product photo, in the order the shop arranged them.
+
+    `color` is the colourway slug the photo was tagged with, or null for a
+    photo that stands for the product as a whole — the storefront shows the
+    matching photo when a shopper picks a colour, and falls back to the
+    drawn mockup for a product that has no photography yet.
+    """
+
+    color = serializers.SlugRelatedField(slug_field="slug", read_only=True)
+
+    class Meta:
+        model = ProductImage
+        fields = ["image", "color", "alt_text", "position"]
+
+
 class ProductSerializer(serializers.ModelSerializer):
     name = LocalizedField("name")
     description = LocalizedField("description")
@@ -56,6 +72,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     colors = serializers.SerializerMethodField()
     sizes = serializers.SerializerMethodField()
+    images = ProductImageSerializer(many=True, read_only=True)
     is_on_sale = serializers.BooleanField(read_only=True)
     in_stock = serializers.BooleanField(read_only=True)
 
@@ -72,6 +89,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "tags",
             "colors",
             "sizes",
+            "images",
             "is_on_sale",
             "in_stock",
         ]

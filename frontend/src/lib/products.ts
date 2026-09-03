@@ -18,6 +18,14 @@ export type ProductColor = {
   dark: boolean;
 };
 
+export type ProductPhoto = {
+  /** Ready for `<img src>`: the API host is already prefixed. */
+  url: string;
+  /** The colourway this photo shows, or null when it stands for the product. */
+  colorId: string | null;
+  alt: string;
+};
+
 export type ProductTag = "new" | "sale" | "bestseller";
 
 export type Category = "Tees" | "Hoodies" | "Accessories";
@@ -32,6 +40,9 @@ export type Product = {
   tags: ProductTag[];
   colors: ProductColor[];
   sizes: string[];
+  /** Real photography, in the order the shop arranged it. Empty is normal:
+      a product without photos is drawn as a garment mockup instead. */
+  photos: ProductPhoto[];
   description: Localized;
   details: Localized<string[]>;
 };

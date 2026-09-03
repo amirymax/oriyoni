@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/Badge";
-import { GarmentMockup } from "@/components/mockups/GarmentMockup";
 import { HeartIcon } from "@/components/icons";
+import { ProductVisual } from "@/components/ProductVisual";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -48,11 +48,12 @@ export function ProductCard({ product }: { product: Product }) {
     <div className="group relative flex flex-col">
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-card">
         <Link href={`/product/${product.slug}`} className="block h-full w-full">
-          <GarmentMockup
+          <ProductVisual
+            photos={product.photos}
             garment={product.garment}
-            color={color.hex}
-            dark={color.dark}
-            className="h-full w-full p-8 transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+            color={color}
+            alt={l(product.name)}
+            className="h-full w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />
         </Link>
 

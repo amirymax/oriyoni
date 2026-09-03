@@ -1,9 +1,16 @@
 from decimal import Decimal
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 
-from catalog.models import Category, Color, Product, ProductVariant
+from catalog.models import Category, Color, Product, ProductImage, ProductVariant
+
+# The smallest thing ImageField will accept as a picture.
+ONE_PIXEL_GIF = (
+    b"GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00"
+    b"\x01\x00\x00\x02\x02D\x01\x00;"
+)
 
 
 @pytest.fixture
@@ -86,3 +93,21 @@ def tee(make_product, make_variant, tees, black, bone):
         for size in ("S", "M", "L"):
             make_variant(product, color, size)
     return product
+
+
+@pytest.fixture
+def make_image(db):
+    """A photo on a product, as an upload from the admin panel would leave it."""
+
+    def _make(product, color=None, position=0, alt_text=""):
+        return ProductImage.objects.create(
+            product=product,
+            color=color,
+            position=position,
+            alt_text=alt_text,
+            image=SimpleUploadedFile(
+                f"{product.slug}-{position}.gif", ONE_PIXEL_GIF, content_type="image/gif"
+            ),
+        )
+
+    return _make

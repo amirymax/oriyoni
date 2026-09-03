@@ -153,6 +153,15 @@ export type ApiColor = {
   is_dark: boolean;
 };
 
+export type ApiProductImage = {
+  /** Absolute when the API is asked over HTTP; a `/media/…` path otherwise. */
+  image: string;
+  /** The colourway slug this photo is tagged with, if any. */
+  color: string | null;
+  alt_text: string;
+  position: number;
+};
+
 export type ApiVariant = {
   sku: string;
   color: string;
@@ -171,6 +180,7 @@ export type ApiProduct = {
   tags: string[];
   colors: ApiColor[];
   sizes: string[];
+  images: ApiProductImage[];
   is_on_sale: boolean;
   in_stock: boolean;
 };

@@ -12,10 +12,18 @@ import {
   API_URL,
   type ApiProduct,
   type ApiProductDetail,
+  type ApiProductImage,
   type ApiVariant,
   type Paginated,
 } from "@/lib/api";
-import type { Category, Garment, Product, ProductColor, ProductTag } from "@/lib/products";
+import type {
+  Category,
+  Garment,
+  Product,
+  ProductColor,
+  ProductPhoto,
+  ProductTag,
+} from "@/lib/products";
 
 const CATEGORY_BY_SLUG: Record<string, Category> = {
   tees: "Tees",
@@ -41,6 +49,16 @@ function toColor(color: ApiProduct["colors"][number]): ProductColor {
   };
 }
 
+function toPhoto(image: ApiProductImage): ProductPhoto {
+  return {
+    // DRF returns an absolute URL when it can see the request, and a bare
+    // `/media/…` path when it cannot — an `<img>` needs the host either way.
+    url: image.image.startsWith("http") ? image.image : `${API_URL}${image.image}`,
+    colorId: image.color,
+    alt: image.alt_text,
+  };
+}
+
 export function toProduct(payload: ApiProduct): Product {
   return {
     slug: payload.slug,
@@ -52,6 +70,7 @@ export function toProduct(payload: ApiProduct): Product {
     tags: payload.tags as ProductTag[],
     colors: payload.colors.map(toColor),
     sizes: payload.sizes,
+    photos: (payload.images ?? []).map(toPhoto),
     description: payload.description,
     // Only the detail endpoint carries these; a card never shows them.
     details: (payload as ApiProductDetail).details ?? { en: [], ru: [] },

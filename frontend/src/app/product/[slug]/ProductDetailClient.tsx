@@ -3,8 +3,8 @@
 import { useState, type ReactNode } from "react";
 import { Badge } from "@/components/Badge";
 import { CheckIcon, HeartIcon, MinusIcon, PlusIcon } from "@/components/icons";
-import { GarmentMockup } from "@/components/mockups/GarmentMockup";
 import { PageHeader } from "@/components/PageHeader";
+import { ProductVisual, photoFor } from "@/components/ProductVisual";
 import { ProductGrid } from "@/components/ProductGrid";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -22,6 +22,9 @@ export function ProductDetailClient({
   related: Product[];
 }) {
   const [colorIndex, setColorIndex] = useState(0);
+  // Null means "whichever photo goes with the chosen colour"; a number is a
+  // thumbnail the shopper picked, which the next colour change hands back.
+  const [photoIndex, setPhotoIndex] = useState<number | null>(null);
   const [size, setSize] = useState(product.sizes[0]);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -35,6 +38,8 @@ export function ProductDetailClient({
   const { t, l, price } = useLanguage();
 
   const color = product.colors[colorIndex];
+  const photo =
+    photoIndex != null ? product.photos[photoIndex] : photoFor(product.photos, color.id);
   const saved = isSaved(product.slug);
   const name = l(product.name);
   const discount =
@@ -74,21 +79,46 @@ export function ProductDetailClient({
 
       <div className="container-shell py-10 sm:py-14">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="relative aspect-square w-full bg-card">
-            {(product.tags.includes("new") || discount != null) && (
-              <div className="absolute left-4 top-4 z-10 flex flex-col gap-1.5">
-                {discount != null && <Badge tone="ink">-{discount}%</Badge>}
-                {product.tags.includes("new") && (
-                  <Badge tone="champagne">{t.badgeNew}</Badge>
-                )}
+          <div>
+            <div className="relative aspect-square w-full overflow-hidden bg-card">
+              {(product.tags.includes("new") || discount != null) && (
+                <div className="absolute left-4 top-4 z-10 flex flex-col gap-1.5">
+                  {discount != null && <Badge tone="ink">-{discount}%</Badge>}
+                  {product.tags.includes("new") && (
+                    <Badge tone="champagne">{t.badgeNew}</Badge>
+                  )}
+                </div>
+              )}
+              <ProductVisual
+                photos={product.photos}
+                photo={photo}
+                garment={product.garment}
+                color={color}
+                alt={name}
+                className="h-full w-full"
+                mockupPadding="p-16"
+              />
+            </div>
+
+            {product.photos.length > 1 && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {product.photos.map((item, i) => (
+                  <button
+                    key={item.url}
+                    type="button"
+                    onClick={() => setPhotoIndex(i)}
+                    aria-label={item.alt || `${name} ${i + 1}`}
+                    aria-pressed={item === photo}
+                    className={`h-20 w-20 shrink-0 cursor-pointer overflow-hidden border bg-card transition-colors ${
+                      item === photo ? "border-ink" : "border-transparent hover:border-line"
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- host is only known at runtime */}
+                    <img src={item.url} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
-            <GarmentMockup
-              garment={product.garment}
-              color={color.hex}
-              dark={color.dark}
-              className="h-full w-full p-16"
-            />
           </div>
 
           <div>
@@ -125,7 +155,10 @@ export function ProductDetailClient({
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => setColorIndex(i)}
+                      onClick={() => {
+                        setColorIndex(i);
+                        setPhotoIndex(null);
+                      }}
                       aria-label={l(c.name)}
                       aria-pressed={i === colorIndex}
                       className="h-9 w-9 cursor-pointer rounded-full border-2 transition-colors"

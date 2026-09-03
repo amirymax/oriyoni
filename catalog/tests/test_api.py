@@ -199,6 +199,33 @@ class TestFilters:
         assert api.get(PRODUCTS, {"category": "nope"}).json()["count"] == 0
 
 
+class TestPhotos:
+    """Photos uploaded in the admin panel have to reach the storefront.
+
+    A product with none lists an empty array, which is the storefront's cue
+    to fall back to the drawn garment mockup.
+    """
+
+    def test_a_product_without_photos_lists_none(self, api, tee):
+        assert api.get(PRODUCTS).json()["results"][0]["images"] == []
+
+    def test_photos_arrive_in_order_with_their_colourway(self, api, tee, black, make_image):
+        make_image(tee, color=black, position=1, alt_text="Back")
+        make_image(tee, position=0, alt_text="Front")
+
+        images = api.get(PRODUCTS).json()["results"][0]["images"]
+
+        assert [image["alt_text"] for image in images] == ["Front", "Back"]
+        assert images[0]["color"] is None
+        assert images[1]["color"] == "black"
+        assert images[0]["image"].endswith(".gif")
+
+    def test_the_product_page_gets_them_too(self, api, tee, make_image):
+        make_image(tee)
+
+        assert len(api.get(detail(tee.slug)).json()["images"]) == 1
+
+
 class TestCategories:
     def test_lists_in_navigation_order(self, api, tees, hoodies):
         body = api.get(CATEGORIES).json()
@@ -239,4 +266,4 @@ class TestQueryCount:
         assert few == many
 
     def test_detail_is_a_handful_of_queries(self, api, tee):
-        assert self.queries_for(api, detail(tee.slug)) <= 3
+        assert self.queries_for(api, detail(tee.slug)) <= 4
