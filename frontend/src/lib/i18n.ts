@@ -1038,10 +1038,15 @@ export function plural(t: Dict, lang: Lang, n: number) {
   return fmt(n === 1 ? t.countOne : t.countMany, { n });
 }
 
+// Tajik is formatted through ru-RU deliberately, not through tg-TJ: browsers
+// ship no Tajik locale data, so `tg-TJ` resolves silently to the default
+// locale and a Tajik page renders "₽2,000" instead of "2 000 ₽". Tajik follows
+// the same convention as Russian here — space grouping, symbol after the
+// number — so borrowing that locale is what the page should look like anyway.
 const PRICE_LOCALES: Record<Lang, string> = {
   en: "en-US",
   ru: "ru-RU",
-  tg: "tg-TJ",
+  tg: "ru-RU",
 };
 
 export function formatPrice(value: number, lang: Lang) {
