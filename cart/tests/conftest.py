@@ -51,29 +51,40 @@ def signed_in(api, user):
 
 @pytest.fixture
 def tee(db):
-    category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
+    category = Category.objects.create(
+        slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо"
+    )
     return Product.objects.create(
         slug="crown-tee",
         name_en="Crown Tee",
         name_ru="Футболка Crown",
+        name_tg="Футболкаи Crown",
         category=category,
         garment="tee",
         price=Decimal("48.00"),
         description_en="A tee.",
         description_ru="Футболка.",
+        description_tg="Футболка.",
     )
 
 
 @pytest.fixture
 def black(db):
     return Color.objects.create(
-        slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a", is_dark=True
+        slug="black",
+        name_en="Black",
+        name_ru="Чёрный",
+        name_tg="Сиёҳ",
+        hex="#0a0a0a",
+        is_dark=True,
     )
 
 
 @pytest.fixture
 def bone(db):
-    return Color.objects.create(slug="bone", name_en="Bone", name_ru="Молочный", hex="#efe9db")
+    return Color.objects.create(
+        slug="bone", name_en="Bone", name_ru="Молочный", name_tg="Ширӣ", hex="#efe9db"
+    )
 
 
 @pytest.fixture

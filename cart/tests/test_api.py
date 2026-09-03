@@ -44,12 +44,17 @@ class TestAdding:
         """The storefront renders the cart without refetching each product."""
         item = add(api, variant).json()["items"][0]
 
-        assert item["name"] == {"en": "Crown Tee", "ru": "Футболка Crown"}
+        assert item["name"] == {
+            "en": "Crown Tee",
+            "ru": "Футболка Crown",
+            "tg": "Футболкаи Crown",
+        }
         assert item["product_slug"] == "crown-tee"
         assert item["garment"] == "tee"
         assert item["size"] == "M"
         assert item["color"]["hex"] == "#0a0a0a"
         assert item["color"]["name"]["ru"] == "Чёрный"
+        assert item["color"]["name"]["tg"] == "Сиёҳ"
 
     def test_a_product_without_photos_draws_the_mockup(self, api, variant):
         """Null is the storefront's cue to fall back to the drawn garment."""

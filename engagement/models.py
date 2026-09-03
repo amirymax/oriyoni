@@ -6,9 +6,8 @@ import uuid
 from django.db import models
 from django.utils import timezone
 
+from core.languages import LANGUAGE_CHOICES
 from core.models import TimeStampedModel
-
-LANGUAGE_CHOICES = [("en", "English"), ("ru", "Russian")]
 
 
 class NewsletterSubscriber(TimeStampedModel):

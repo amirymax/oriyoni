@@ -26,17 +26,25 @@ def test_a_known_product_survived_the_move_intact():
 
     assert tee.name_en == "Crown Emblem Tee"
     assert tee.name_ru == "Футболка Crown Emblem"
+    assert tee.name_tg == "Футболкаи Crown Emblem"
     assert str(tee.price) == "48.00"
     assert tee.tags == ["bestseller"]
     assert tee.category.slug == "tees"
     assert tee.garment == "tee"
 
 
-def test_nothing_lost_its_russian_translation():
+@pytest.mark.parametrize("lang", ["ru", "tg"])
+def test_nothing_lost_its_translations(lang):
     for product in Product.objects.all():
-        assert product.name_ru, product.slug
-        assert product.description_ru, product.slug
-        assert len(product.details_ru) == len(product.details_en), product.slug
+        assert getattr(product, f"name_{lang}"), product.slug
+        assert getattr(product, f"description_{lang}"), product.slug
+        assert len(getattr(product, f"details_{lang}")) == len(product.details_en), product.slug
+
+
+@pytest.mark.parametrize("lang", ["ru", "tg"])
+def test_categories_and_colours_are_named_in_every_language(lang):
+    for row in [*Category.objects.all(), *Color.objects.all()]:
+        assert getattr(row, f"name_{lang}"), row.slug
 
 
 def test_sale_items_carry_a_higher_compare_price():

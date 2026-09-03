@@ -1,11 +1,12 @@
 from rest_framework import serializers
 
+from core.languages import LANGUAGES
 from engagement.models import ContactMessage
 
 
 class SubscribeSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    language = serializers.ChoiceField(choices=["en", "ru"], default="en")
+    language = serializers.ChoiceField(choices=LANGUAGES, default="en")
 
     def validate_email(self, value):
         # Lowercased so the unique index treats Ada@… and ada@… as one
@@ -18,7 +19,7 @@ class UnsubscribeSerializer(serializers.Serializer):
 
 
 class ContactSerializer(serializers.ModelSerializer):
-    language = serializers.ChoiceField(choices=["en", "ru"], default="en")
+    language = serializers.ChoiceField(choices=LANGUAGES, default="en")
 
     class Meta:
         model = ContactMessage

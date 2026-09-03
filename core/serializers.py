@@ -1,11 +1,16 @@
 from rest_framework import serializers
 
+from core.languages import FALLBACKS, LANGUAGES
+
 
 class LocalizedField(serializers.Field):
-    """Folds a pair of `<prefix>_en` / `<prefix>_ru` columns into one object.
+    """Folds a set of `<prefix>_<lang>` columns into one object.
 
-    Emits `{"en": …, "ru": …}`, which is the storefront's `Localized<T>` type,
-    so a language switch needs no round trip to the API.
+    Emits `{"en": …, "ru": …, "tg": …}`, which is the storefront's
+    `Localized<T>` type, so a language switch needs no round trip to the API.
+
+    A column that is still empty borrows another language's copy rather than
+    handing the storefront a blank product name — see `core.languages`.
     """
 
     def __init__(self, prefix, **kwargs):
@@ -17,4 +22,14 @@ class LocalizedField(serializers.Field):
         super().__init__(**kwargs)
 
     def to_representation(self, instance):
-        return {lang: getattr(instance, f"{self.prefix}_{lang}") for lang in ("en", "ru")}
+        values = {lang: getattr(instance, f"{self.prefix}_{lang}") for lang in LANGUAGES}
+        return {lang: value or self._fallback(values, lang) for lang, value in values.items()}
+
+    @staticmethod
+    def _fallback(values, lang):
+        for candidate in FALLBACKS[lang]:
+            if values[candidate]:
+                return values[candidate]
+        # Everything is empty, so there is nothing better to show than the
+        # empty value itself — and its type ("" or []) still has to be right.
+        return values[lang]

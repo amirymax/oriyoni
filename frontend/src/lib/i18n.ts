@@ -1,14 +1,15 @@
-export type Lang = "en" | "ru";
+export type Lang = "en" | "ru" | "tg";
 
 export const LANGUAGES: {
   id: Lang;
   label: string;
   endonym: string;
-  /** Two-letter badge shown in the switcher. */
+  /** Two-letter badge shown in the switcher, written in that language. */
   short: string;
 }[] = [
   { id: "en", label: "English", endonym: "English", short: "EN" },
   { id: "ru", label: "Russian", endonym: "Русский", short: "РУ" },
+  { id: "tg", label: "Tajik", endonym: "Тоҷикӣ", short: "ТҶ" },
 ];
 
 /** A value that exists in every supported language. */
@@ -683,13 +684,349 @@ const ru: Dict = {
   orderTotalLabel: "Итого",
 };
 
-export const dictionaries: Record<Lang, Dict> = { en, ru };
+const tg: Dict = {
+  // Announcement
+  announcePromo: "10% тахфиф ба фармоиши аввалин бо рамзи",
+  announceShipping: "Аз 120 ₽ расонидан ройгон",
+  announceDismiss: "Бастани эълон",
+
+  // Navigation
+  navShopAll: "Каталог",
+  navTees: "Футболкаҳо",
+  navHoodies: "Ҳудиҳо",
+  navAccessories: "Лавозимот",
+  navSale: "Тахфиф",
+  navAbout: "Дар бораи бренд",
+  navContact: "Тамос",
+  navWishlist: "Дилхоҳҳо",
+
+  // Header
+  headerHome: "ORIYONI — ба саҳифаи асосӣ",
+  headerSearch: "Ҷустуҷӯ",
+  headerSearchPlaceholder: "Ҷустуҷӯ: футболка, ҳудӣ, лавозимот…",
+  headerSearchClose: "Бастани ҷустуҷӯ",
+  headerOpenMenu: "Кушодани меню",
+  headerCloseMenu: "Бастани меню",
+  headerCartLabel: "Сабад, {n} мол",
+  headerWishlistLabel: "Дилхоҳҳо, {n} мол",
+  headerNavPrimary: "Менюи асосӣ",
+  headerNavMobile: "Менюи мобилӣ",
+
+  // Bottom tab bar (mobile)
+  tabBarLabel: "Менюи асосӣ",
+  tabShop: "Каталог",
+  tabCart: "Сабад",
+  tabWishlist: "Дилхоҳ",
+  tabAccount: "Профил",
+
+  // Language switcher
+  langSwitchLabel: "Забон",
+  langSwitchTo: "Гузариш ба забони {lang}",
+
+  // Hero
+  heroEyebrow: "Дар талоши эътимоди ором таъсис ёфтааст",
+  heroTitleLine1: "Тоҷро",
+  heroTitleLine2: "бипӯш",
+  heroSubtitle:
+    "Футболкаҳо ва ҳудиҳои зич бо буриши тоза, ки барои дер пӯшидан сохта шудаанд. Бе ҳаёҳуи зиёдатӣ — танҳо нишон.",
+  heroShopTees: "Дидани футболкаҳо",
+  heroShopHoodies: "Дидани ҳудиҳо",
+
+  // Category banners
+  bannerTeesCopy:
+    "Пахтаи зич ва буриши тоза. Қабати ҳаррӯза бо нишон дар сина.",
+  bannerHoodiesCopy:
+    "Флиси хобдор барои субҳҳои сард ва шабҳои дароз. Бе ягон созиш.",
+  bannerShopNow: "Ба каталог",
+
+  // Collection section
+  collectionEyebrow: "Маҷмӯа",
+  collectionHeading: "Тамоми хатти маҳсулот",
+  collectionViewAll: "Дидани ҳама",
+  tabsLabel: "Интихобҳои мол",
+  tabNew: "Навомадҳо",
+  tabSale: "Тахфиф",
+  tabBestseller: "Серхаридор",
+
+  // Trust bar
+  trustShippingTitle: "Расонидани ройгон",
+  trustShippingCopy: "Ҳангоми фармоиш аз 120 ₽",
+  trustReturnsTitle: "Баргардонидан то 30 рӯз",
+  trustReturnsCopy: "Мувофиқ наомад? Баргардонед",
+  trustSecureTitle: "Пардохти бехатар",
+  trustSecureCopy: "Рамзгузории саросарӣ",
+
+  // Manifesto
+  manifestoHeading: "Барои онҳое, ки бе ҳаёҳу пешсаф мешаванд",
+  manifestoBody:
+    "ORIYONI аз як андеша оғоз ёфт: либос бояд вазн дошта бошад, вале таваҷҷуҳро талаб накунад. Ҳар нишон гулдӯзӣ шудааст, ҳар пахта зич аст, ҳар буриш санҷида шудааст. Ҳеҷ ҳамкорӣ ва ҳеҷ ҳилае нест — танҳо меъёре, ки худамон барои худ гузоштаем.",
+  manifestoCta: "Дар бораи бренд",
+  manifestoCut: "Буриш",
+  manifestoCotton: "Пахта",
+  manifestoCrest: "Нишон",
+
+  // Newsletter
+  newsletterHeading: "Ба дарбор ҳамроҳ шавед",
+  newsletterCopy:
+    "10% тахфиф ба фармоиши аввалин ва дастрасии барвақт ба дропҳои нав.",
+  newsletterEmailLabel: "Почтаи электронӣ",
+  newsletterPlaceholder: "Почтаи худро ворид кунед",
+  newsletterSubmit: "Обуна шудан",
+  newsletterSuccess: "Шумо дар рӯйхатед — ба ORIYONI хуш омадед.",
+
+  // Footer
+  footerTagline:
+    "Футболкаҳо ва ҳудиҳои зич, ки бар эътимоди ором сохта шудаанд. Тоҷро бипӯш.",
+  footerShop: "Каталог",
+  footerHelp: "Кӯмак",
+  footerCompany: "Ширкат",
+  footerContactUs: "Тамос бо мо",
+  footerShippingReturns: "Расонидан ва баргардонидан",
+  footerSizeGuide: "Ҷадвали андозаҳо",
+  footerTrackOrder: "Пайгирии фармоиш",
+  footerOurStory: "Дар бораи бренд",
+  footerCraft: "Мавод ва истеҳсол",
+  footerWholesale: "Яклухт",
+  footerRights: "© {year} ORIYONI. Ҳамаи ҳуқуқҳо ҳифз шудаанд.",
+  footerMotto: "Бо ният офарида шудааст. Барои онҳое, ки тоҷ мепӯшанд.",
+  footerInstagram: "ORIYONI дар Instagram",
+  footerTikTok: "ORIYONI дар TikTok",
+  footerTwitter: "ORIYONI дар Twitter",
+
+  // Product card / grid
+  quickAdd: "Зуд ба сабад",
+  addToWishlist: "Ба дилхоҳҳо илова кардан",
+  removeFromWishlist: "Аз дилхоҳҳо гирифтан",
+  viewColor: "Дидани ранг: {color}",
+  badgeNew: "Нав",
+  badgeBestseller: "Маъмул",
+  gridEmpty: "Ҳоло дар ин ҷо чизе нест — дертар назар кунед.",
+
+  // Breadcrumb
+  breadcrumbHome: "Асосӣ",
+
+  // Shop page
+  shopTitle: "Каталог",
+  shopDescription: "Футболкаҳо, ҳудиҳои зич ва лавозимоти мувофиқи онҳо.",
+  filterAll: "Ҳама",
+  sortLabel: "Тартиби мол",
+  sortNewest: "Аввал навтаринҳо",
+  sortPriceAsc: "Нарх: аз кам ба зиёд",
+  sortPriceDesc: "Нарх: аз зиёд ба кам",
+  resultsFor: "Натиҷаҳо аз рӯи дархост",
+  resultsClear: "Тоза кардан",
+  // Tajik does not inflect a noun after a numeral, so all three forms are one.
+  countOne: "{n} дона",
+  countFew: "{n} дона",
+  countMany: "{n} дона",
+
+  // Categories
+  categoryTees: "Футболкаҳо",
+  categoryHoodies: "Ҳудиҳо",
+  categoryAccessories: "Лавозимот",
+
+  // Product detail
+  pdpColor: "Ранг",
+  pdpSize: "Андоза",
+  pdpAddToCart: "Ба сабад",
+  pdpAdded: "Илова шуд",
+  pdpSoldOut: "Фурӯхта шуд",
+  pdpDetails: "Таркиб ва нигоҳубин",
+  pdpShipping: "Расонидан ва баргардонидан",
+  pdpShippingCopy:
+    "Ҳангоми фармоиш аз 120 ₽ расонидан ройгон аст. Мӯҳлати расонидан — 3–5 рӯзи корӣ. Мувофиқ наомад? Дар давоми 30 рӯз пулро бармегардонем.",
+  pdpRelated: "Ба шумо низ маъқул шуданаш мумкин",
+  qtyDecrease: "Кам кардани шумора",
+  qtyIncrease: "Зиёд кардани шумора",
+  sizeOneSize: "Андозаи ягона",
+
+  // Cart
+  cartTitle: "Сабад",
+  cartDrawerTitle: "Сабад ({n})",
+  cartClose: "Бастани сабад",
+  cartEmpty: "Сабади шумо холӣ аст.",
+  cartShopCta: "Гузаштан ба каталог",
+  cartRemove: "Нест кардан",
+  cartViewCheckout: "Сабад ва ба расмият даровардан",
+  cartSummary: "Фармоиши шумо",
+  cartPromoLabel: "Рамзи тахфиф",
+  cartPromoApply: "Татбиқ кардан",
+  cartPromoHint: "Рамзи CROWN10-ро ворид кунед — 10% тахфиф.",
+  cartPromoSuccess: "CROWN10 татбиқ шуд — 10% тахфиф.",
+  cartSubtotal: "Маблағ",
+  cartShipping: "Расонидан",
+  cartFree: "Ройгон",
+  cartDiscount: "Тахфиф",
+  cartTotal: "Ҳамагӣ",
+  cartCheckout: "Гузаштан ба пардохт",
+  cartCheckoutNote:
+    "Дар бораи пардохт пеш аз фиристодани фармоиш тавассути почта мувофиқа мекунем.",
+  cartCheckoutTitle: "Гузаштан ба расмиятдарорӣ",
+
+  // Wishlist
+  wishlistTitle: "Дилхоҳҳо",
+  wishlistEmpty: "Ҳоло чизе нигоҳ дошта нашудааст.",
+  wishlistError:
+    "Дилхоҳҳоро бор карда натавонистем. Пайвастро санҷед ва боз кӯшиш кунед.",
+  wishlistCta: "Дидани маҷмӯа",
+
+  // About
+  aboutTitle: "Дар бораи бренд",
+  aboutHeading: "Эътимоди ором дар ҳар рӯз",
+  aboutBody1:
+    "ORIYONI бар як бовари содда бунёд шудааст: либосе, ки ҳар рӯз мепӯшед, бояд ҳамон қадар санҷида бошад, ки либоси барои рӯзҳои махсус нигоҳдошта. Мо футболкаҳо ва ҳудиҳои зичро дар атрофи як нишон месозем — бе ҳамкорӣ ва бе ҳаёҳуи мавсимӣ, танҳо меъёре, ки дар ҳар дарз ба он содиқем.",
+  aboutBody2:
+    "Тоҷ дар бораи мақом нест. Ин ёдоварӣ аст, ки худро чунон нигоҳ доред, гӯё меъёр аллакай гузошта шудааст.",
+  aboutCta: "Гузаштан ба каталог",
+  aboutValuesHeading: "Принсипҳои мо",
+  aboutValue1Title: "Ҳамеша матои зич",
+  aboutValue1Copy:
+    "Мо дар мавод сарфа намекунем. Ҳар футболка аз 220 г/м², ҳар ҳудӣ аз 400 г/м².",
+  aboutValue2Title: "Гулдӯзӣ, на чоп",
+  aboutValue2Copy:
+    "Нишон гулдӯзӣ шудааст, на бо ранг чоп. Он на як мавсимро аз сар мегузаронад.",
+  aboutValue3Title: "Дропҳои санҷида",
+  aboutValue3Copy:
+    "Ҳеҷ маҷмӯа барои шумора нест. Ҳар нашр ҷои худро дар хатти маҳсулот сазовор мешавад.",
+
+  // Contact
+  contactTitle: "Тамос",
+  contactDescription:
+    "Савол дар бораи фармоиш, андоза ё савдои яклухт? Ба мо нависед.",
+  contactEmailHeading: "Email",
+  contactResponseHeading: "Вақти ҷавоб",
+  contactResponseCopy: "Дар давоми 1–2 рӯзи корӣ ҷавоб медиҳем.",
+  contactWholesaleHeading: "Савдои яклухт",
+  contactWholesaleCopy:
+    "Мехоҳед ORIYONI-ро фурӯшед? Инро дар паёми худ қайд кунед.",
+  contactName: "Ном",
+  contactEmail: "Email",
+  contactSubject: "Мавзӯъ",
+  contactMessage: "Паём",
+  contactMessagePlaceholder: "Чӣ гуна кӯмак карда метавонем?",
+  contactSubmit: "Фиристодани паём",
+  contactSuccess:
+    "Ташаккур — паёми шуморо гирифтем ва ба зудӣ бо шумо дар тамос мешавем.",
+
+  // 404
+  notFoundTitle: "Саҳифа ёфт нашуд",
+  notFoundCopy:
+    "Чунин саҳифа вуҷуд надорад — шояд мол кӯчонида шуда ё фурӯхта шудааст.",
+  notFoundCta: "Ба саҳифаи асосӣ",
+
+  // Account and authentication
+  authSignIn: "Ворид шудан",
+  authSignOut: "Баромадан",
+  authRegister: "Сохтани ҳисоб",
+  authAccount: "Ҳисоб",
+  authEmail: "Почтаи электронӣ",
+  authPassword: "Парол",
+  authFirstName: "Ном",
+  authLastName: "Насаб",
+  authSignInTitle: "Вуруд",
+  authSignInDescription: "Сабад ва дилхоҳҳо дар ҳар дастгоҳ бо шумо мемонанд.",
+  authSignInSubmit: "Ворид шудан",
+  authSignInPrompt: "Бори аввал дар ORIYONI?",
+  authSignInPromptLink: "Сохтани ҳисоб",
+  authRegisterTitle: "Сохтани ҳисоб",
+  authRegisterDescription:
+    "Сабад, дилхоҳҳо ва таърихи фармоишҳо — дар ҳамаи дастгоҳҳо.",
+  authRegisterSubmit: "Сохтани ҳисоб",
+  authRegisterPrompt: "Аллакай ҳисоб доред?",
+  authRegisterPromptLink: "Ворид шудан",
+  authForgotPassword: "Паролро фаромӯш кардед?",
+  authForgotTitle: "Барқарорсозии парол",
+  authForgotDescription:
+    "Суроғаро ворид кунед — мо пайванди иваз кардани паролро мефиристем.",
+  authForgotSubmit: "Фиристодани пайванд",
+  authForgotSent:
+    "Агар ҳисоб бо чунин суроға бошад, пайванд аллакай дар роҳ аст. Он як маротиба кор мекунад ва чанд соат эътибор дорад.",
+  authResetTitle: "Пароли нав",
+  authResetDescription:
+    "Пароле интихоб кунед, ки дар ҷои дигар истифода намебаред.",
+  authResetNewPassword: "Пароли нав",
+  authResetSubmit: "Нигоҳ доштани парол",
+  authResetInvalid:
+    "Пайванд эътибор надорад ё мӯҳлаташ гузаштааст. Пайванди нав дархост кунед.",
+  authResetDone: "Парол иваз шуд. Шумо ба ҳисоб ворид шудед.",
+  authBackToShop: "Бозгашт ба дӯкон",
+  authWorking: "Як лаҳза…",
+  authAccountTitle: "Ҳисоби шумо",
+  authAccountDescription: "Маълумот, фармоишҳо ва дилхоҳҳо.",
+  authAccountDetails: "Маълумот",
+  authAccountSave: "Нигоҳ доштан",
+  authAccountSaved: "Нигоҳ дошта шуд.",
+  authAccountPassword: "Ивази парол",
+  authAccountCurrentPassword: "Пароли ҷорӣ",
+  authAccountNewPassword: "Пароли нав",
+  authAccountPasswordSaved: "Парол иваз шуд.",
+  authAccountOrders: "Таърихи фармоишҳо",
+  authAccountNoOrders: "Шумо ҳанӯз фармоиш надодаед.",
+  authOrderItems: "{n} дона",
+  authSignedInAs: "Шумо ҳамчун {email} ворид шудаед",
+  authRequired: "Барои дидани ин саҳифа ворид шавед.",
+  authGenericError: "Чизе нодуруст шуд. Боз кӯшиш кунед.",
+  authOffline: "Бо дӯкон пайваст шуда нашуд. Пайвастро санҷед.",
+
+  // Тасдиқи почта
+  authVerifyTitle: "Тасдиқи почта",
+  authVerifyDescription: "Суроғаи почтаи ҳисоби шуморо тасдиқ карда истодаем.",
+  authVerifyDone: "Суроға тасдиқ шуд. Ташаккур!",
+  authVerifyInvalid:
+    "Пайванд эътибор надорад ё мӯҳлаташ гузаштааст. Мо пайванди нав мефиристем.",
+  authVerifyResend: "Фиристодани пайванди нав",
+  authVerifyResent:
+    "Агар суроға ҳанӯз тасдиқ нашуда бошад, пайванди нав дар роҳ аст.",
+  authVerifyBanner:
+    "Суроғаи почта ҳанӯз тасдиқ нашудааст. Онро тасдиқ кунед, то мо дар бораи фармоишҳо ба шумо нависем.",
+  authVerifyBannerAction: "Боз як бор фиристодани мактуб",
+  authVerifyEmailLabel: "Почтаи электронӣ",
+
+  // Пешниҳод ба меҳмон ҳангоми ба расмият даровардан
+  guestPromptTitle: "Фармоишҳои худро назорат кунед",
+  guestPromptBody:
+    "Ҳисоб созед, то ҳамаи фармоишҳо ва таърихи харидро нигоҳ доред ва пайгирӣ кунед. Сабад бо шумо мемонад — ҳеҷ чиз гум намешавад.",
+  guestPromptCreate: "Сохтани ҳисоб",
+  guestPromptSignIn: "Ворид шудан",
+  guestPromptContinue: "Ҳамчун меҳмон идома додан",
+  guestPromptDismiss: "Бастан",
+
+  // Checkout
+  checkoutTitle: "Ба расмият даровардан",
+  checkoutDescription: "Фармоишро ба куҷо расонем?",
+  checkoutContact: "Тамос",
+  checkoutShippingHeading: "Суроғаи расонидан",
+  checkoutName: "Ном ва насаб",
+  checkoutLine1: "Суроға",
+  checkoutLine2: "Хона, офис (ихтиёрӣ)",
+  checkoutCity: "Шаҳр",
+  checkoutPostalCode: "Индекс",
+  checkoutCountry: "Кишвар",
+  checkoutCountryHint: "Рамзи дуҳарфа, масалан TJ",
+  checkoutPhone: "Телефон (ихтиёрӣ)",
+  checkoutNote: "Эзоҳ ба фармоиш (ихтиёрӣ)",
+  checkoutSummary: "Фармоиши шумо",
+  checkoutPlaceOrder: "Додани фармоиш",
+  checkoutEmpty: "Дар сабад моле барои ба расмият даровардан нест.",
+  checkoutPaymentPending:
+    "Пардохт ҳанӯз пайваст нашудааст. Фармоиш сабт шуд — мо ба шумо менависем, то пеш аз фиристодан дар бораи пардохт мувофиқа кунем.",
+  orderPlacedTitle: "Фармоиш қабул шуд",
+  orderPlacedCopy:
+    "Ташаккур. Тасдиқ ба {email} мерасад. Рақами фармоиш {number}-ро нигоҳ доред.",
+  orderStatus: "Ҳолат",
+  orderTotalLabel: "Ҳамагӣ",
+};
+
+export const dictionaries: Record<Lang, Dict> = { en, ru, tg };
 
 /**
  * Pick the right plural form for a count.
- * English has one/other; Russian has one/few/many.
+ * English has one/other; Russian has one/few/many; Tajik leaves the noun
+ * alone after a numeral, so all three of its forms are the same string.
  */
 export function plural(t: Dict, lang: Lang, n: number) {
+  if (lang === "tg") return fmt(t.countMany, { n });
+
   if (lang === "ru") {
     const mod10 = n % 10;
     const mod100 = n % 100;
@@ -701,8 +1038,14 @@ export function plural(t: Dict, lang: Lang, n: number) {
   return fmt(n === 1 ? t.countOne : t.countMany, { n });
 }
 
+const PRICE_LOCALES: Record<Lang, string> = {
+  en: "en-US",
+  ru: "ru-RU",
+  tg: "tg-TJ",
+};
+
 export function formatPrice(value: number, lang: Lang) {
-  return new Intl.NumberFormat(lang === "ru" ? "ru-RU" : "en-US", {
+  return new Intl.NumberFormat(PRICE_LOCALES[lang], {
     style: "currency",
     currency: "RUB",
     currencyDisplay: "narrowSymbol",

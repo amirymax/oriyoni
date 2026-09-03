@@ -127,8 +127,10 @@ class OrderItem(TimeStampedModel):
     product_slug = models.SlugField()
     name_en = models.CharField(max_length=200)
     name_ru = models.CharField(max_length=200)
+    name_tg = models.CharField(max_length=200)
     color_name_en = models.CharField(max_length=60)
     color_name_ru = models.CharField(max_length=60)
+    color_name_tg = models.CharField(max_length=60)
     size = models.CharField(max_length=20)
 
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -154,8 +156,10 @@ class OrderItem(TimeStampedModel):
             product_slug=product.slug,
             name_en=product.name_en,
             name_ru=product.name_ru,
+            name_tg=product.name_tg,
             color_name_en=variant.color.name_en,
             color_name_ru=variant.color.name_ru,
+            color_name_tg=variant.color.name_tg,
             size=variant.size,
             unit_price=unit_price,
             quantity=cart_item.quantity,

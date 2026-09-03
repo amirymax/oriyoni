@@ -1,8 +1,8 @@
 """Transactional email.
 
-The storefront ships in English and Russian, and the visitor's choice lives in
-the browser rather than in the account, so the client passes the language it is
-rendering in and the message is written in that language.
+The storefront ships in English, Russian and Tajik, and the visitor's choice
+lives in the browser rather than in the account, so the client passes the
+language it is rendering in and the message is written in that language.
 """
 
 from urllib.parse import urlencode
@@ -36,6 +36,16 @@ _RESET_MESSAGES = {
             "ссылку.\n\n— ORIYONI"
         ),
     },
+    "tg": {
+        "subject": "Барқарорсозии пароли ORIYONI",
+        "body": (
+            "Касе барои ин ҳисоби ORIYONI барқарорсозии паролро дархост кард.\n\n"
+            "Пароли навро дар ин ҷо интихоб кунед:\n{url}\n\n"
+            "Пайванд {hours} соат эътибор дорад ва танҳо як маротиба кор мекунад.\n\n"
+            "Агар ин шумо набошед, чизе тағйир наёфтааст — танҳо пайвандро накушоед."
+            "\n\n— ORIYONI"
+        ),
+    },
 }
 
 
@@ -59,6 +69,19 @@ _VERIFICATION_MESSAGES = {
             "Ссылка действует {hours} ч. и работает один раз. Пока можно "
             "спокойно продолжать покупки — она ничего не блокирует.\n\n"
             "Если вы не создавали аккаунт, просто не открывайте ссылку.\n\n"
+            "— ORIYONI"
+        ),
+    },
+    "tg": {
+        "subject": "Суроғаи почтаи ORIYONI-ро тасдиқ кунед",
+        "body": (
+            "Ба ORIYONI хуш омадед.\n\n"
+            "Ин суроғаро тасдиқ кунед, то мо дар бораи фармоишҳоятон бо шумо "
+            "дар тамос шавем:\n{url}\n\n"
+            "Пайванд {hours} соат эътибор дорад ва танҳо як маротиба кор мекунад. "
+            "То он вақт хариди худро бемалол давом диҳед — ҳеҷ чиз ба он "
+            "вобаста нест.\n\n"
+            "Агар шумо ҳисоб накушода бошед, танҳо пайвандро накушоед.\n\n"
             "— ORIYONI"
         ),
     },

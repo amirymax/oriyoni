@@ -12,6 +12,7 @@ import {
 import {
   dictionaries,
   formatPrice as formatPriceRaw,
+  LANGUAGES,
   loc,
   plural as pluralRaw,
   type Dict,
@@ -36,7 +37,15 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 const STORAGE_KEY = "oriyoni-lang-v1";
 
 function isLang(value: unknown): value is Lang {
-  return value === "en" || value === "ru";
+  return LANGUAGES.some(({ id }) => id === value);
+}
+
+/** The site language a browser locale asks for, or English. */
+function fromNavigator(): Lang {
+  const locale = navigator.language.toLowerCase();
+  // `tg` is what a Tajik locale is tagged as; `tg-cyrl-tj` and plain `tg-tj`
+  // both start with it, and matching on the prefix covers all three.
+  return LANGUAGES.find(({ id }) => locale.startsWith(id))?.id ?? "en";
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -50,11 +59,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       // ignore unavailable storage
     }
 
-    const next = isLang(stored)
-      ? stored
-      : navigator.language.toLowerCase().startsWith("ru")
-        ? "ru"
-        : "en";
+    const next = isLang(stored) ? stored : fromNavigator();
 
     if (next !== "en") {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage / navigator, unavailable during SSR

@@ -45,13 +45,15 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(compare_at_price__gt=0)
 
         if search := params.get("search"):
-            # Both languages at once, because the visitor may be reading in
-            # either and product names are not translated word for word.
+            # Every language at once, because the visitor may be reading in
+            # any of them and product names are not translated word for word.
             queryset = queryset.filter(
                 Q(name_en__icontains=search)
                 | Q(name_ru__icontains=search)
+                | Q(name_tg__icontains=search)
                 | Q(description_en__icontains=search)
                 | Q(description_ru__icontains=search)
+                | Q(description_tg__icontains=search)
             )
 
         ordering = params.get("ordering")

@@ -6,14 +6,14 @@ from catalog.models import Category, Color, Product, ProductVariant
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ["name_en", "name_ru", "slug", "position"]
+    list_display = ["name_en", "name_ru", "name_tg", "slug", "position"]
     list_editable = ["position"]
     prepopulated_fields = {"slug": ["name_en"]}
 
 
 @admin.register(Color)
 class ColorAdmin(admin.ModelAdmin):
-    list_display = ["swatch", "name_en", "name_ru", "slug", "hex", "is_dark"]
+    list_display = ["swatch", "name_en", "name_ru", "name_tg", "slug", "hex", "is_dark"]
     prepopulated_fields = {"slug": ["name_en"]}
 
     @admin.display(description="")
@@ -37,16 +37,28 @@ class ProductVariantInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     list_display = ["name_en", "category", "price", "compare_at_price", "stock_total", "is_active"]
     list_filter = ["category", "garment", "is_active"]
-    search_fields = ["name_en", "name_ru", "slug"]
+    search_fields = ["name_en", "name_ru", "name_tg", "slug"]
     list_editable = ["is_active"]
     prepopulated_fields = {"slug": ["name_en"]}
     inlines = [ProductVariantInline]
 
     fieldsets = [
         (None, {"fields": ["slug", "category", "garment", "is_active", "position"]}),
-        ("Names", {"fields": ["name_en", "name_ru"]}),
+        ("Names", {"fields": ["name_en", "name_ru", "name_tg"]}),
         ("Pricing", {"fields": ["price", "compare_at_price", "tags"]}),
-        ("Copy", {"fields": ["description_en", "description_ru", "details_en", "details_ru"]}),
+        (
+            "Copy",
+            {
+                "fields": [
+                    "description_en",
+                    "description_ru",
+                    "description_tg",
+                    "details_en",
+                    "details_ru",
+                    "details_tg",
+                ]
+            },
+        ),
     ]
 
     def get_queryset(self, request):

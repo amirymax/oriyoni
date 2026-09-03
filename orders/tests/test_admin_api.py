@@ -58,8 +58,10 @@ def order(db):
         product_slug="crown-tee",
         name_en="Crown Tee",
         name_ru="Футболка Crown",
+        name_tg="Футболкаи Crown",
         color_name_en="Black",
         color_name_ru="Чёрный",
+        color_name_tg="Сиёҳ",
         size="M",
         unit_price=Decimal("48.00"),
         quantity=1,
@@ -125,17 +127,23 @@ class TestDetail:
         assert item["name_en"] == "Crown Tee"
 
     def test_a_line_carries_its_products_photo(self, staff_client, order):
-        category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
-        black = Color.objects.create(slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a")
+        category = Category.objects.create(
+            slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо"
+        )
+        black = Color.objects.create(
+            slug="black", name_en="Black", name_ru="Чёрный", name_tg="Сиёҳ", hex="#0a0a0a"
+        )
         product = Product.objects.create(
             slug="crown-tee",
             name_en="Crown Tee",
             name_ru="Футболка Crown",
+            name_tg="Футболкаи Crown",
             category=category,
             garment="tee",
             price=Decimal("48.00"),
             description_en="A tee.",
             description_ru="Футболка.",
+            description_tg="Футболка.",
         )
         ProductImage.objects.create(
             product=product,

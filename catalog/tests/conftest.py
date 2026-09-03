@@ -30,25 +30,39 @@ def _tmp_media_root(settings, tmp_path):
 
 @pytest.fixture
 def tees(db):
-    return Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки", position=0)
+    return Category.objects.create(
+        slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо", position=0
+    )
 
 
 @pytest.fixture
 def hoodies(db):
-    return Category.objects.create(slug="hoodies", name_en="Hoodies", name_ru="Худи", position=1)
+    return Category.objects.create(
+        slug="hoodies", name_en="Hoodies", name_ru="Худи", name_tg="Ҳудиҳо", position=1
+    )
 
 
 @pytest.fixture
 def black(db):
     return Color.objects.create(
-        slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a", is_dark=True
+        slug="black",
+        name_en="Black",
+        name_ru="Чёрный",
+        name_tg="Сиёҳ",
+        hex="#0a0a0a",
+        is_dark=True,
     )
 
 
 @pytest.fixture
 def bone(db):
     return Color.objects.create(
-        slug="bone", name_en="Bone", name_ru="Молочный", hex="#efe9db", is_dark=False
+        slug="bone",
+        name_en="Bone",
+        name_ru="Молочный",
+        name_tg="Ширӣ",
+        hex="#efe9db",
+        is_dark=False,
     )
 
 
@@ -58,12 +72,15 @@ def make_product(db):
         defaults = {
             "name_en": "Test Tee",
             "name_ru": "Тестовая футболка",
+            "name_tg": "Футболкаи озмоишӣ",
             "garment": "tee",
             "price": Decimal("48.00"),
             "description_en": "An English description.",
             "description_ru": "Описание по-русски.",
+            "description_tg": "Тавсиф ба забони тоҷикӣ.",
             "details_en": ["240gsm cotton"],
             "details_ru": ["Хлопок 240 г/м²"],
+            "details_tg": ["Пахта 240 г/м²"],
         }
         return Product.objects.create(slug=slug, category=category, **{**defaults, **kwargs})
 

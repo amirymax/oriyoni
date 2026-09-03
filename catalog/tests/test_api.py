@@ -33,12 +33,29 @@ class TestListShape:
         assert body["count"] == 1
         assert len(body["results"]) == 1
 
-    def test_bilingual_text_arrives_in_both_languages(self, api, tee):
+    def test_translated_text_arrives_in_every_language(self, api, tee):
         """The storefront switches language without another round trip."""
         product = api.get(PRODUCTS).json()["results"][0]
 
-        assert product["name"] == {"en": "Test Tee", "ru": "Тестовая футболка"}
+        assert product["name"] == {
+            "en": "Test Tee",
+            "ru": "Тестовая футболка",
+            "tg": "Футболкаи озмоишӣ",
+        }
         assert product["description"]["ru"] == "Описание по-русски."
+        assert product["description"]["tg"] == "Тавсиф ба забони тоҷикӣ."
+
+    def test_an_untranslated_column_borrows_the_next_best_language(
+        self, api, make_product, tees
+    ):
+        """A product added before Tajik existed reads in Russian, not a blank."""
+        make_product("older-tee", tees, name_tg="", description_tg="")
+
+        product = api.get(PRODUCTS).json()["results"][0]
+
+        assert product["slug"] == "older-tee"
+        assert product["name"]["tg"] == "Тестовая футболка"
+        assert product["description"]["tg"] == "Описание по-русски."
 
     def test_price_is_a_number_not_a_string(self, api, tee):
         product = api.get(PRODUCTS).json()["results"][0]
@@ -53,6 +70,7 @@ class TestListShape:
         assert product["colors"][0]["hex"] == "#0a0a0a"
         assert product["colors"][0]["is_dark"] is True
         assert product["colors"][0]["name"]["ru"] == "Чёрный"
+        assert product["colors"][0]["name"]["tg"] == "Сиёҳ"
 
     def test_sizes_run_small_to_large(self, api, tee):
         """Alphabetical order would put XL before XS."""
@@ -84,6 +102,7 @@ class TestDetailShape:
         assert product["details"] == {
             "en": ["240gsm cotton"],
             "ru": ["Хлопок 240 г/м²"],
+            "tg": ["Пахта 240 г/м²"],
         }
         assert len(product["variants"]) == 6
 
@@ -231,7 +250,7 @@ class TestCategories:
         body = api.get(CATEGORIES).json()
 
         assert [c["slug"] for c in body] == ["tees", "hoodies"]
-        assert body[0]["name"] == {"en": "Tees", "ru": "Футболки"}
+        assert body[0]["name"] == {"en": "Tees", "ru": "Футболки", "tg": "Футболкаҳо"}
 
 
 class TestQueryCount:

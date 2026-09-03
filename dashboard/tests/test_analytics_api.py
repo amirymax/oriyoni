@@ -33,8 +33,10 @@ def make_order_with_item(status, product_slug, name_en, quantity=1, unit_price=D
         product_slug=product_slug,
         name_en=name_en,
         name_ru=name_en,
+        name_tg=name_en,
         color_name_en="Black",
         color_name_ru="Чёрный",
+        color_name_tg="Сиёҳ",
         size="M",
         unit_price=unit_price,
         quantity=quantity,
@@ -125,16 +127,20 @@ class TestAggregates:
         assert Decimal(str(body["average_order_value"])) == Decimal("50.00")
 
     def test_category_performance_maps_slugs_to_categories(self, staff_client):
-        category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
+        category = Category.objects.create(
+            slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо"
+        )
         Product.objects.create(
             slug="crown-tee",
             name_en="Crown Tee",
             name_ru="Тест",
+            name_tg="Тест",
             category=category,
             garment="tee",
             price=Decimal("48.00"),
             description_en="d",
             description_ru="d",
+            description_tg="d",
         )
         make_order_with_item(
             OrderStatus.PAID, "crown-tee", "Crown Tee", unit_price=Decimal("48.00")

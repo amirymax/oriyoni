@@ -72,7 +72,7 @@ export function toProduct(payload: ApiProduct): Product {
     photos: (payload.images ?? []).map(toPhoto),
     description: payload.description,
     // Only the detail endpoint carries these; a card never shows them.
-    details: (payload as ApiProductDetail).details ?? { en: [], ru: [] },
+    details: (payload as ApiProductDetail).details ?? { en: [], ru: [], tg: [] },
   };
 }
 

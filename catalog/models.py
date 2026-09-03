@@ -1,10 +1,11 @@
 """The product catalogue.
 
-Bilingual text is stored as paired `_en`/`_ru` columns rather than through a
-translation package. The storefront needs both languages in one payload —
-it switches language without a round trip — so there is nothing to gain from
-locale negotiation, and the serializers fold each pair back into the
-`{"en": …, "ru": …}` shape the frontend already types as `Localized<T>`.
+Translated text is stored as `_en`/`_ru`/`_tg` column triples rather than
+through a translation package. The storefront needs every language in one
+payload — it switches language without a round trip — so there is nothing to
+gain from locale negotiation, and the serializers fold each triple back into
+the `{"en": …, "ru": …, "tg": …}` shape the frontend already types as
+`Localized<T>`.
 """
 
 from django.contrib.postgres.fields import ArrayField
@@ -41,6 +42,7 @@ class Category(TimeStampedModel):
     slug = models.SlugField(unique=True)
     name_en = models.CharField(max_length=100)
     name_ru = models.CharField(max_length=100)
+    name_tg = models.CharField(max_length=100)
     position = models.PositiveSmallIntegerField(
         default=0,
         help_text="Lower numbers come first in navigation.",
@@ -60,6 +62,7 @@ class Color(TimeStampedModel):
     slug = models.SlugField(unique=True)
     name_en = models.CharField(max_length=60)
     name_ru = models.CharField(max_length=60)
+    name_tg = models.CharField(max_length=60)
     hex = models.CharField(max_length=7, validators=[HEX_COLOR])
     is_dark = models.BooleanField(
         default=False,
@@ -91,6 +94,7 @@ class Product(TimeStampedModel):
     slug = models.SlugField(unique=True)
     name_en = models.CharField(max_length=200)
     name_ru = models.CharField(max_length=200)
+    name_tg = models.CharField(max_length=200)
 
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name="products")
     garment = models.CharField(max_length=20, choices=Garment.choices)
@@ -115,8 +119,10 @@ class Product(TimeStampedModel):
 
     description_en = models.TextField()
     description_ru = models.TextField()
+    description_tg = models.TextField()
     details_en = ArrayField(models.CharField(max_length=200), default=list, blank=True)
     details_ru = ArrayField(models.CharField(max_length=200), default=list, blank=True)
+    details_tg = ArrayField(models.CharField(max_length=200), default=list, blank=True)
 
     is_active = models.BooleanField(
         default=True,

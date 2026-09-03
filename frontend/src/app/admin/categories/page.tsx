@@ -85,6 +85,7 @@ export default function AdminCategoriesPage() {
   const columns: Column<CategoryAdmin>[] = [
     { key: "name_en", header: "Название (EN)" },
     { key: "name_ru", header: "Название (RU)" },
+    { key: "name_tg", header: "Название (TG)" },
     { key: "slug", header: "Slug" },
     { key: "position", header: "Позиция" },
     { key: "product_count", header: "Товаров" },
@@ -185,6 +186,7 @@ function CategoryForm({
   const [slug, setSlug] = useState(editing?.slug ?? "");
   const [nameEn, setNameEn] = useState(editing?.name_en ?? "");
   const [nameRu, setNameRu] = useState(editing?.name_ru ?? "");
+  const [nameTg, setNameTg] = useState(editing?.name_tg ?? "");
   const [position, setPosition] = useState(editing ? String(editing.position) : "0");
   const [error, setError] = useState<ApiError | null>(null);
   const [pending, setPending] = useState(false);
@@ -194,7 +196,13 @@ function CategoryForm({
     setPending(true);
     setError(null);
 
-    const body: CategoryAdminInput = { slug, name_en: nameEn, name_ru: nameRu, position: Number(position) };
+    const body: CategoryAdminInput = {
+      slug,
+      name_en: nameEn,
+      name_ru: nameRu,
+      name_tg: nameTg,
+      position: Number(position),
+    };
 
     try {
       if (editing) {
@@ -215,6 +223,7 @@ function CategoryForm({
       <FormError>{error?.banner}</FormError>
       <Field id="cat_name_en" label="Название (EN)" value={nameEn} onChange={setNameEn} error={error?.field("name_en")} required />
       <Field id="cat_name_ru" label="Название (RU)" value={nameRu} onChange={setNameRu} error={error?.field("name_ru")} required />
+      <Field id="cat_name_tg" label="Название (TG)" value={nameTg} onChange={setNameTg} error={error?.field("name_tg")} required />
       <Field id="cat_slug" label="Slug" value={slug} onChange={setSlug} error={error?.field("slug")} required />
       <Field
         id="cat_position"

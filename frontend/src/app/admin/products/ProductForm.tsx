@@ -43,6 +43,7 @@ const FIELD_LABELS: Record<string, string> = {
   slug: "Slug",
   name_en: "Название (EN)",
   name_ru: "Название (RU)",
+  name_tg: "Название (TG)",
   category: "Категория",
   garment: "Тип",
   price: "Цена",
@@ -52,8 +53,10 @@ const FIELD_LABELS: Record<string, string> = {
   position: "Позиция",
   description_en: "Описание (EN)",
   description_ru: "Описание (RU)",
+  description_tg: "Описание (TG)",
   details_en: "Характеристики (EN)",
   details_ru: "Характеристики (RU)",
+  details_tg: "Характеристики (TG)",
   variants: "Варианты",
   images: "Фото",
 };
@@ -111,12 +114,14 @@ export function ProductForm({
   const garmentFieldId = useId();
   const descriptionEnFieldId = useId();
   const descriptionRuFieldId = useId();
+  const descriptionTgFieldId = useId();
 
   const [categories, setCategories] = useState<CategoryAdmin[]>([]);
   const [colors, setColors] = useState<ColorAdmin[]>([]);
 
   const [nameEn, setNameEn] = useState(initial?.name_en ?? "");
   const [nameRu, setNameRu] = useState(initial?.name_ru ?? "");
+  const [nameTg, setNameTg] = useState(initial?.name_tg ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [categoryId, setCategoryId] = useState<string>(
     initial ? String(typeof initial.category === "number" ? initial.category : initial.category.id) : ""
@@ -131,8 +136,10 @@ export function ProductForm({
   const [position, setPosition] = useState(initial ? String(initial.position) : "0");
   const [descriptionEn, setDescriptionEn] = useState(initial?.description_en ?? "");
   const [descriptionRu, setDescriptionRu] = useState(initial?.description_ru ?? "");
+  const [descriptionTg, setDescriptionTg] = useState(initial?.description_tg ?? "");
   const [detailsEn, setDetailsEn] = useState<string[]>(initial?.details_en ?? []);
   const [detailsRu, setDetailsRu] = useState<string[]>(initial?.details_ru ?? []);
+  const [detailsTg, setDetailsTg] = useState<string[]>(initial?.details_tg ?? []);
   const [variants, setVariants] = useState<VariantRow[]>(toVariantRows(initial));
   const [images, setImages] = useState(initial?.images ?? []);
 
@@ -195,6 +202,7 @@ export function ProductForm({
       slug,
       name_en: nameEn,
       name_ru: nameRu,
+      name_tg: nameTg,
       category: Number(categoryId),
       garment,
       price: Number(price),
@@ -204,8 +212,10 @@ export function ProductForm({
       position: Number(position),
       description_en: descriptionEn,
       description_ru: descriptionRu,
+      description_tg: descriptionTg,
       details_en: detailsEn.filter((line) => line.trim() !== ""),
       details_ru: detailsRu.filter((line) => line.trim() !== ""),
+      details_tg: detailsTg.filter((line) => line.trim() !== ""),
       variants: variants
         .filter((v) => v.color !== "")
         .map((v) => ({
@@ -262,6 +272,7 @@ export function ProductForm({
       <section className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <TextField label="Название (EN)" value={nameEn} onChange={setNameEn} error={error?.field("name_en")} required />
         <TextField label="Название (RU)" value={nameRu} onChange={setNameRu} error={error?.field("name_ru")} required />
+        <TextField label="Название (TG)" value={nameTg} onChange={setNameTg} error={error?.field("name_tg")} required />
         <TextField label="Slug" value={slug} onChange={setSlug} error={error?.field("slug")} required />
         <div>
           <FieldLabel htmlFor={categoryFieldId}>Категория</FieldLabel>
@@ -366,6 +377,16 @@ export function ProductForm({
             className="w-full border border-line px-3.5 py-3 text-sm text-ink focus:border-ink focus:outline-none"
           />
         </div>
+        <div>
+          <FieldLabel htmlFor={descriptionTgFieldId}>Описание (TG)</FieldLabel>
+          <textarea
+            id={descriptionTgFieldId}
+            value={descriptionTg}
+            onChange={(e) => setDescriptionTg(e.target.value)}
+            rows={5}
+            className="w-full border border-line px-3.5 py-3 text-sm text-ink focus:border-ink focus:outline-none"
+          />
+        </div>
       </section>
 
       <section className="grid grid-cols-1 gap-8 sm:grid-cols-2">
@@ -380,6 +401,12 @@ export function ProductForm({
           lines={detailsRu}
           onChange={setDetailsRu}
           onLineChange={(i, v) => updateDetailLine(detailsRu, setDetailsRu, i, v)}
+        />
+        <DetailLines
+          label="Характеристики (TG)"
+          lines={detailsTg}
+          onChange={setDetailsTg}
+          onLineChange={(i, v) => updateDetailLine(detailsTg, setDetailsTg, i, v)}
         />
       </section>
 

@@ -80,6 +80,7 @@ class TestCategoryAdmin:
             "slug": "tees",
             "name_en": "Tees",
             "name_ru": "Футболки",
+            "name_tg": "Футболкаҳо",
             "position": 0,
             "product_count": 0,
         }
@@ -92,7 +93,13 @@ class TestCategoryAdmin:
     def test_create(self, staff_client):
         response = staff_client.post(
             CATEGORIES,
-            {"slug": "new-cat", "name_en": "New", "name_ru": "Новая", "position": 5},
+            {
+                "slug": "new-cat",
+                "name_en": "New",
+                "name_ru": "Новая",
+                "name_tg": "Нав",
+                "position": 5,
+            },
             format="json",
         )
 
@@ -184,11 +191,13 @@ class TestProductAdminDetail:
             "slug": "brand-new-tee",
             "name_en": "Brand New Tee",
             "name_ru": "Новая футболка",
+            "name_tg": "Футболкаи нав",
             "category": tees.id,
             "garment": "tee",
             "price": "40.00",
             "description_en": "d",
             "description_ru": "d",
+            "description_tg": "d",
             "variants": [
                 {"color": black.id, "size": "M", "sku": "NEW-TEE-M", "stock": 3},
             ],
@@ -257,8 +266,10 @@ class TestProductAdminDetail:
             product_slug=tee.slug,
             name_en=tee.name_en,
             name_ru=tee.name_ru,
+            name_tg=tee.name_tg,
             color_name_en=black.name_en,
             color_name_ru=black.name_ru,
+            color_name_tg=black.name_tg,
             size="M",
             unit_price=Decimal("48.00"),
             quantity=1,

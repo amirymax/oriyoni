@@ -43,9 +43,16 @@ def signed_in(api, user):
 
 @pytest.fixture
 def products(db):
-    category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
+    category = Category.objects.create(
+        slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо"
+    )
     black = Color.objects.create(
-        slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a", is_dark=True
+        slug="black",
+        name_en="Black",
+        name_ru="Чёрный",
+        name_tg="Сиёҳ",
+        hex="#0a0a0a",
+        is_dark=True,
     )
     made = []
     for slug in ("crown-tee", "essential-tee"):
@@ -53,11 +60,13 @@ def products(db):
             slug=slug,
             name_en=slug.replace("-", " ").title(),
             name_ru="Футболка",
+            name_tg="Футболка",
             category=category,
             garment="tee",
             price=Decimal("48.00"),
             description_en="A tee.",
             description_ru="Футболка.",
+            description_tg="Футболка.",
         )
         ProductVariant.objects.create(
             product=product, color=black, size="M", sku=f"SKU-{slug}", stock=5

@@ -80,17 +80,23 @@ class TestNumbers:
         assert recent.id  # sanity: fixture created successfully
 
     def _make_product_with_variants(self):
-        category = Category.objects.create(slug="tees", name_en="Tees", name_ru="Футболки")
-        color = Color.objects.create(slug="black", name_en="Black", name_ru="Чёрный", hex="#0a0a0a")
+        category = Category.objects.create(
+            slug="tees", name_en="Tees", name_ru="Футболки", name_tg="Футболкаҳо"
+        )
+        color = Color.objects.create(
+            slug="black", name_en="Black", name_ru="Чёрный", name_tg="Сиёҳ", hex="#0a0a0a"
+        )
         product = Product.objects.create(
             slug="test-tee",
             name_en="Test Tee",
             name_ru="Тест",
+            name_tg="Тест",
             category=category,
             garment="tee",
             price=Decimal("48.00"),
             description_en="d",
             description_ru="d",
+            description_tg="d",
         )
         return product, color
 

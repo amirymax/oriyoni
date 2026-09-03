@@ -47,6 +47,7 @@ export type CategoryAdmin = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   position: number;
   product_count: number;
 };
@@ -55,6 +56,7 @@ export type CategoryAdminInput = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   position: number;
 };
 
@@ -81,6 +83,7 @@ export type ColorAdmin = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   hex: string;
   is_dark: boolean;
 };
@@ -89,6 +92,7 @@ export type ColorAdminInput = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   hex: string;
   is_dark: boolean;
 };
@@ -127,6 +131,7 @@ export type ProductListItem = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   category: { id: number; slug: string; name_en: string };
   garment: Garment;
   price: number;
@@ -154,8 +159,10 @@ export type ProductDetailAdmin = Omit<ProductListItem, "category"> & {
   category: { id: number; slug: string; name_en: string } | number;
   description_en: string;
   description_ru: string;
+  description_tg: string;
   details_en: string[];
   details_ru: string[];
+  details_tg: string[];
   variants: ProductVariantAdmin[];
   images: ProductImageAdmin[];
 };
@@ -164,6 +171,7 @@ export type ProductWriteBody = {
   slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   category: number;
   garment: Garment;
   price: number;
@@ -173,8 +181,10 @@ export type ProductWriteBody = {
   position: number;
   description_en: string;
   description_ru: string;
+  description_tg: string;
   details_en: string[];
   details_ru: string[];
+  details_tg: string[];
   variants: {
     id?: number;
     color: number;
@@ -269,8 +279,10 @@ export type OrderItemAdmin = {
   product_slug: string;
   name_en: string;
   name_ru: string;
+  name_tg: string;
   color_name_en: string;
   color_name_ru: string;
+  color_name_tg: string;
   /** The product's photo, or null — a deleted variant, or no photography. */
   image: string | null;
   size: string;

@@ -109,8 +109,12 @@ class TestLineSnapshots:
 
         item = checkout(api, email="guest@example.com").json()["items"][0]
 
-        assert item["name"] == {"en": "Crown Tee", "ru": "Футболка Crown"}
-        assert item["color_name"] == {"en": "Black", "ru": "Чёрный"}
+        assert item["name"] == {
+            "en": "Crown Tee",
+            "ru": "Футболка Crown",
+            "tg": "Футболкаи Crown",
+        }
+        assert item["color_name"] == {"en": "Black", "ru": "Чёрный", "tg": "Сиёҳ"}
         assert item["size"] == "M"
         assert item["unit_price"] == 48.0
         assert item["line_total"] == 96.0

@@ -114,10 +114,12 @@ fresh database comes up stocked and browsable.
 
 Both are public and read-only; lists are paginated (`count`, `results`).
 
-Bilingual text is stored as paired `name_en` / `name_ru` columns and served as
-`{"en": …, "ru": …}` — the storefront's `Localized<T>` — so switching language
-costs no round trip. There is no translation package and no locale
-negotiation.
+Translated text is stored as `name_en` / `name_ru` / `name_tg` column triples
+and served as `{"en": …, "ru": …, "tg": …}` — the storefront's `Localized<T>` —
+so switching language costs no round trip. There is no translation package and
+no locale negotiation. A column left empty on a row that predates a language
+borrows the next best one (Tajik falls back to Russian, then English) rather
+than rendering a blank product name.
 
 Stock lives on the **variant** (a product in one colour and one size), because
 that is what a shopper picks and what runs out. The API reports only whether a
@@ -258,19 +260,19 @@ If the storefront and API end up on different sites in production, set
 
 ## Languages
 
-The site ships in **English and Russian**. A flag switcher sits in the header's
-top-right on every page, with a second copy in the footer.
+The site ships in **English, Russian and Tajik** (EN / РУ / ТҶ). A switcher sits
+in the header's top-right on every page, with a second copy in the footer.
 
-- All copy lives in `frontend/src/lib/i18n.ts`; both dictionaries are
-  type-checked against each other, so a missing translation fails the build.
+- All copy lives in `frontend/src/lib/i18n.ts`; every dictionary is
+  type-checked against English, so a missing translation fails the build.
 - Product names, descriptions, details and colours are localized in
   `frontend/src/lib/products.ts`.
 - The choice persists in `localStorage` and falls back to the browser locale.
 
 Page `<title>` metadata is currently English-only, because it is rendered on the
 server before the visitor's language preference is known. Moving language into
-the URL (`/en/…`, `/ru/…`) would make titles and SEO fully bilingual — worth
-doing if organic search matters.
+the URL (`/en/…`, `/ru/…`, `/tg/…`) would make titles and SEO fully translated
+— worth doing if organic search matters.
 
 ## Deploying
 

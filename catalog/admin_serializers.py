@@ -1,9 +1,9 @@
 """Serializers for the admin panel's catalogue management endpoints.
 
 Unlike the shopper-facing serializers in `catalog/serializers.py`, these speak
-plain English/Russian columns rather than the folded `{"en": …, "ru": …}`
-shape, and expose the internal bits (stock, ids, timestamps) a merchandiser
-needs but a shopper does not.
+plain per-language columns rather than the folded
+`{"en": …, "ru": …, "tg": …}` shape, and expose the internal bits (stock,
+ids, timestamps) a merchandiser needs but a shopper does not.
 """
 
 from django.db import IntegrityError, transaction
@@ -21,13 +21,13 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["id", "slug", "name_en", "name_ru", "position", "product_count"]
+        fields = ["id", "slug", "name_en", "name_ru", "name_tg", "position", "product_count"]
 
 
 class ColorAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Color
-        fields = ["id", "slug", "name_en", "name_ru", "hex", "is_dark"]
+        fields = ["id", "slug", "name_en", "name_ru", "name_tg", "hex", "is_dark"]
 
 
 class CategoryMiniSerializer(serializers.ModelSerializer):
@@ -143,6 +143,7 @@ class ProductAdminListSerializer(serializers.ModelSerializer):
             "slug",
             "name_en",
             "name_ru",
+            "name_tg",
             "category",
             "garment",
             "price",
@@ -186,6 +187,7 @@ class ProductAdminDetailSerializer(serializers.ModelSerializer):
             "slug",
             "name_en",
             "name_ru",
+            "name_tg",
             "category",
             "garment",
             "price",
@@ -193,8 +195,10 @@ class ProductAdminDetailSerializer(serializers.ModelSerializer):
             "tags",
             "description_en",
             "description_ru",
+            "description_tg",
             "details_en",
             "details_ru",
+            "details_tg",
             "is_active",
             "position",
             "in_stock",

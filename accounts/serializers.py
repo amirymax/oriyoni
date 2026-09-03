@@ -8,6 +8,7 @@ from rest_framework import serializers
 
 from accounts.models import User
 from accounts.tokens import email_verification_token_generator
+from core.languages import LANGUAGES
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,7 +64,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = PasswordField()
     # Not stored anywhere: it only decides which language the confirmation
     # email is written in, the same way the reset request carries it.
-    language = serializers.ChoiceField(choices=["en", "ru"], default="en", write_only=True)
+    language = serializers.ChoiceField(choices=LANGUAGES, default="en", write_only=True)
 
     class Meta:
         model = User
@@ -136,7 +137,7 @@ class PasswordResetRequestSerializer(serializers.Serializer):
     email = serializers.EmailField()
     # The storefront knows which language the visitor is reading in; Django
     # would otherwise have to guess from Accept-Language.
-    language = serializers.ChoiceField(choices=["en", "ru"], default="en")
+    language = serializers.ChoiceField(choices=LANGUAGES, default="en")
 
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
@@ -159,7 +160,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 class EmailVerificationResendSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    language = serializers.ChoiceField(choices=["en", "ru"], default="en")
+    language = serializers.ChoiceField(choices=LANGUAGES, default="en")
 
 
 class EmailVerificationConfirmSerializer(serializers.Serializer):

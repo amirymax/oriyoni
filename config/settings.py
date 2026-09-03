@@ -123,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # ---------------------------------------------------------------- i18n/tz --
 
-# The storefront is bilingual, but the API serves both languages in one
+# The storefront is translated, but the API serves every language in one
 # payload rather than negotiating a locale, so Django itself stays on English.
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"

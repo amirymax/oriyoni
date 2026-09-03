@@ -26,7 +26,7 @@ class CategoryAdminViewSet(viewsets.ModelViewSet):
     serializer_class = CategoryAdminSerializer
     permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter]
-    search_fields = ["slug", "name_en", "name_ru"]
+    search_fields = ["slug", "name_en", "name_ru", "name_tg"]
 
     def get_queryset(self):
         # Explicit despite Category.Meta.ordering already matching: pagination
@@ -50,7 +50,7 @@ class ColorAdminViewSet(viewsets.ModelViewSet):
     serializer_class = ColorAdminSerializer
     permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter]
-    search_fields = ["slug", "name_en", "name_ru"]
+    search_fields = ["slug", "name_en", "name_ru", "name_tg"]
 
 
 class ProductAdminViewSet(viewsets.ModelViewSet):
@@ -63,7 +63,7 @@ class ProductAdminViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAdminUser]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["slug", "name_en", "name_ru"]
+    search_fields = ["slug", "name_en", "name_ru", "name_tg"]
     ordering_fields = ["position", "slug", "created_at"]
     ordering = ["position", "slug"]
 
