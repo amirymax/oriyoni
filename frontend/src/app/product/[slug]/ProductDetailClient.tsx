@@ -90,10 +90,10 @@ export function ProductDetailClient({
                 </div>
               )}
               <ProductVisual
-                photos={product.photos}
                 photo={photo}
                 garment={product.garment}
-                color={color}
+                hex={color.hex}
+                dark={color.dark}
                 alt={name}
                 className="h-full w-full"
                 mockupPadding="p-16"

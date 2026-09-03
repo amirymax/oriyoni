@@ -13,6 +13,18 @@ PASSWORD = "correct-horse-battery"
 CART = "/api/cart/"
 ITEMS = "/api/cart/items/"
 
+# The smallest thing ImageField will accept as a picture.
+ONE_PIXEL_GIF = (
+    b"GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00"
+    b"\x01\x00\x00\x02\x02D\x01\x00;"
+)
+
+
+@pytest.fixture(autouse=True)
+def _tmp_media_root(settings, tmp_path):
+    """Keep product photos created by a test out of the repo's media/."""
+    settings.MEDIA_ROOT = tmp_path
+
 
 def item_url(pk):
     return f"{ITEMS}{pk}/"

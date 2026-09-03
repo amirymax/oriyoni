@@ -10,9 +10,14 @@ import {
   type ReactNode,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { api, type Cart as ApiCart, type CartLine as ApiCartLine } from "@/lib/api";
+import {
+  api,
+  API_URL,
+  type Cart as ApiCart,
+  type CartLine as ApiCartLine,
+} from "@/lib/api";
 import type { Localized } from "@/lib/i18n";
-import type { Garment } from "@/lib/products";
+import type { Garment, ProductPhoto } from "@/lib/products";
 
 /**
  * The cart lives on the server.
@@ -36,6 +41,8 @@ export type CartLine = {
   garment: Garment;
   swatchHex: string;
   swatchDark: boolean;
+  /** The product's photo for this colourway; null draws the mockup instead. */
+  photo: ProductPhoto | null;
   quantity: number;
   /** How many of this variant the shop still has. */
   available: number;
@@ -70,6 +77,15 @@ function toLine(line: ApiCartLine): CartLine {
     garment: line.garment as Garment,
     swatchHex: line.color.hex,
     swatchDark: line.color.is_dark,
+    photo: line.image
+      ? {
+          // Relative when the API answers without a request in context, which
+          // is how the cart endpoint serializes — an <img> needs the host.
+          url: line.image.startsWith("http") ? line.image : `${API_URL}${line.image}`,
+          colorId: line.color.slug,
+          alt: "",
+        }
+      : null,
     quantity: line.quantity,
     available: line.available,
   };

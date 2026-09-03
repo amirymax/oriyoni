@@ -2,7 +2,7 @@ import pytest
 
 from cart.models import Cart, CartItem
 from cart.session import CART_COOKIE
-from cart.tests.conftest import CART, ITEMS, item_url
+from cart.tests.conftest import CART, ITEMS, ONE_PIXEL_GIF, item_url
 
 pytestmark = pytest.mark.django_db
 
@@ -50,6 +50,28 @@ class TestAdding:
         assert item["size"] == "M"
         assert item["color"]["hex"] == "#0a0a0a"
         assert item["color"]["name"]["ru"] == "Чёрный"
+
+    def test_a_product_without_photos_draws_the_mockup(self, api, variant):
+        """Null is the storefront's cue to fall back to the drawn garment."""
+        assert add(api, variant).json()["items"][0]["image"] is None
+
+    def test_the_line_carries_the_photo_for_its_colourway(
+        self, api, variant, tee, black, bone
+    ):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        from catalog.models import ProductImage
+
+        for color, name in ((bone, "bone.gif"), (black, "black.gif")):
+            ProductImage.objects.create(
+                product=tee,
+                color=color,
+                image=SimpleUploadedFile(name, ONE_PIXEL_GIF, content_type="image/gif"),
+            )
+
+        item = add(api, variant).json()["items"][0]
+
+        assert item["image"].endswith("black.gif")
 
     def test_totals_are_numbers(self, api, variant):
         body = add(api, variant, 2).json()

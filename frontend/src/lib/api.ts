@@ -204,6 +204,8 @@ export type CartLine = {
   name: Localized;
   garment: string;
   color: ApiColor;
+  /** The product photo for this colourway, or null to draw the mockup. */
+  image: string | null;
   size: string;
   quantity: number;
   unit_price: number;

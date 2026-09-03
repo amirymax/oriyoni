@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MinusIcon, PlusIcon } from "@/components/icons";
-import { GarmentMockup } from "@/components/mockups/GarmentMockup";
+import { ProductVisual } from "@/components/ProductVisual";
 import { PageHeader } from "@/components/PageHeader";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -39,11 +39,14 @@ export default function CartPage() {
               {lines.map((line) => (
                 <li key={line.key} className="flex gap-5 py-6">
                   <div className="h-28 w-24 shrink-0 bg-card">
-                    <GarmentMockup
+                    <ProductVisual
+                      photo={line.photo}
                       garment={line.garment}
-                      color={line.swatchHex}
+                      hex={line.swatchHex}
                       dark={line.swatchDark}
-                      className="h-full w-full p-3"
+                      alt={l(line.name)}
+                      className="h-full w-full"
+                      mockupPadding="p-3"
                     />
                   </div>
                   <div className="flex flex-1 flex-col justify-between">

@@ -42,7 +42,10 @@ class CartViewMixin:
             return Response(CartSerializer.empty(), status=status_code)
 
         loaded = Cart.objects.prefetch_related(
-            "items__variant__product", "items__variant__color"
+            "items__variant__product",
+            "items__variant__color",
+            # Each line draws its product's photo, and picks by colour.
+            "items__variant__product__images",
         ).get(pk=cart.pk)
 
         response = Response(CartSerializer(loaded).data, status=status_code)

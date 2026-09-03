@@ -50,8 +50,10 @@ export function ProductCard({ product }: { product: Product }) {
         <Link href={`/product/${product.slug}`} className="block h-full w-full">
           <ProductVisual
             photos={product.photos}
+            colorId={color.id}
             garment={product.garment}
-            color={color}
+            hex={color.hex}
+            dark={color.dark}
             alt={l(product.name)}
             className="h-full w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />

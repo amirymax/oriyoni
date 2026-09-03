@@ -1,7 +1,7 @@
 "use client";
 
 import { GarmentMockup } from "@/components/mockups/GarmentMockup";
-import type { Garment, ProductColor, ProductPhoto } from "@/lib/products";
+import type { Garment, ProductPhoto } from "@/lib/products";
 
 /**
  * What a product looks like: its photograph, or the drawn mockup.
@@ -17,7 +17,9 @@ import type { Garment, ProductColor, ProductPhoto } from "@/lib/products";
  *
  * A photo tagged to that colour wins; otherwise an untagged one, which stands
  * for the product as a whole; otherwise simply the first. Nothing at all means
- * the product has no photos and the mockup is drawn instead.
+ * the product has no photos and the mockup is drawn instead. The cart applies
+ * the same rule server-side, where it has one line's product rather than the
+ * whole catalogue.
  */
 export function photoFor(
   photos: ProductPhoto[],
@@ -31,32 +33,37 @@ export function photoFor(
 }
 
 export function ProductVisual({
-  photos,
+  photos = [],
+  photo,
+  colorId,
   garment,
-  color,
+  hex,
+  dark,
   alt,
   className = "",
   /** The mockup is a drawing and needs breathing room; a photo fills the box. */
   mockupPadding = "p-8",
-  photo,
 }: {
-  photos: ProductPhoto[];
+  photos?: ProductPhoto[];
+  /** A photo already chosen — a gallery's pick, or a cart line's own. */
+  photo?: ProductPhoto | null;
+  /** Which colourway is being shown, when the photo is picked from `photos`. */
+  colorId?: string;
   garment: Garment;
-  color: ProductColor;
+  hex: string;
+  dark: boolean;
   alt: string;
   className?: string;
   mockupPadding?: string;
-  /** Overrides the colour-matched pick — for a gallery with its own choice. */
-  photo?: ProductPhoto;
 }) {
-  const chosen = photo ?? photoFor(photos, color.id);
+  const chosen = photo ?? photoFor(photos, colorId);
 
   if (!chosen) {
     return (
       <GarmentMockup
         garment={garment}
-        color={color.hex}
-        dark={color.dark}
+        color={hex}
+        dark={dark}
         className={`${className} ${mockupPadding}`}
       />
     );

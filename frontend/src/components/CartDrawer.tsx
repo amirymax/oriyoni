@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { CloseIcon, MinusIcon, PlusIcon } from "@/components/icons";
-import { GarmentMockup } from "@/components/mockups/GarmentMockup";
+import { ProductVisual } from "@/components/ProductVisual";
 import { useCart } from "@/context/CartContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { sizeLabel } from "@/lib/display";
@@ -83,11 +83,14 @@ export function CartDrawer() {
               {lines.map((line) => (
                 <li key={line.key} className="flex gap-4 py-5">
                   <div className="h-24 w-20 shrink-0 bg-card">
-                    <GarmentMockup
+                    <ProductVisual
+                      photo={line.photo}
                       garment={line.garment}
-                      color={line.swatchHex}
+                      hex={line.swatchHex}
                       dark={line.swatchDark}
-                      className="h-full w-full p-2.5"
+                      alt={l(line.name)}
+                      className="h-full w-full"
+                      mockupPadding="p-2.5"
                     />
                   </div>
                   <div className="flex flex-1 flex-col justify-between">
