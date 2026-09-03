@@ -31,10 +31,7 @@ export function Footer() {
   ];
 
   return (
-    <footer
-      className="tab-bar-inset bg-black text-white"
-      style={{ viewTransitionName: "site-footer" }}
-    >
+    <footer className="tab-bar-inset bg-black text-white">
       <div className="container-shell grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="flex items-center gap-3">
