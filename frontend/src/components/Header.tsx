@@ -108,10 +108,7 @@ export function Header() {
   }
 
   return (
-    <header
-      className="sticky top-0 z-40 border-b border-line bg-paper"
-      style={{ viewTransitionName: "site-header" }}
-    >
+    <header className="sticky top-0 z-40 border-b border-line bg-paper">
       {/* Three-column grid keeps the logo centred without the nav ever
           overlapping it, whatever length the translated labels are. */}
       {/* Below xl the burger and the brand share the left edge; from xl the nav

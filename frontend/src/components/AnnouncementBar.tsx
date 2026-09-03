@@ -11,10 +11,7 @@ export function AnnouncementBar() {
   if (!visible) return null;
 
   return (
-    <div
-      className="relative bg-ink text-white"
-      style={{ viewTransitionName: "site-announcement" }}
-    >
+    <div className="relative bg-ink text-white">
       <div className="container-shell flex items-center justify-center py-2.5 text-center text-[11px] font-medium uppercase tracking-[0.12em] sm:text-xs">
         <p>
           {t.announcePromo} <span className="text-champagne">CROWN10</span>

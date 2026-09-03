@@ -161,73 +161,10 @@ select:focus-visible {
 :root {
   --motion-exit: 200ms;
   --motion-enter: 320ms;
-  --motion-page-exit: 140ms;
-  --motion-page-enter: 220ms;
-  --motion-page-move: 320ms;
 
   /* Decelerate on arrival, accelerate on departure. */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-soft: cubic-bezier(0.55, 0, 1, 0.45);
-}
-
-/* --- Page transitions ------------------------------------------------------
-   Driven by <ViewTransition> in src/app/template.tsx. Content fades and lifts
-   slightly; the surrounding chrome is anchored below so only the page moves. */
-
-@keyframes page-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes page-rise {
-  from {
-    transform: translateY(8px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-::view-transition-old(.page-exit) {
-  animation:
-    var(--motion-page-exit) ease-in both page-fade reverse,
-    var(--motion-page-move) var(--ease-in-soft) both page-rise reverse;
-}
-
-::view-transition-new(.page-enter) {
-  animation:
-    var(--motion-page-enter) ease-out var(--motion-page-exit) both page-fade,
-    var(--motion-page-move) var(--ease-out-soft) both page-rise;
-}
-
-/* The transition overlay would otherwise swallow clicks mid-animation. */
-::view-transition {
-  pointer-events: none;
-}
-
-/* Header, promo bar and footer are shared chrome — hold them still so the
-   reader keeps a fixed spatial anchor while the page content moves. */
-::view-transition-group(site-header),
-::view-transition-group(site-announcement),
-::view-transition-group(site-footer) {
-  animation: none;
-  z-index: 100;
-}
-
-::view-transition-old(site-header),
-::view-transition-old(site-announcement),
-::view-transition-old(site-footer) {
-  display: none;
-}
-
-::view-transition-new(site-header),
-::view-transition-new(site-announcement),
-::view-transition-new(site-footer) {
-  animation: none;
 }
 
 /* --- Cart drawer -----------------------------------------------------------
@@ -354,16 +291,6 @@ select:focus-visible {
     visibility var(--motion-enter);
 }
 
-/* The blanket reduced-motion rule above cannot reach view-transition
-   pseudo-elements — they sit outside the document tree — so silence them here. */
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation-duration: 0s !important;
-    animation-delay: 0s !important;
-  }
-}
 
 /* --- Mobile tab bar --------------------------------------------------------
    A floating, phone-only tab bar in the iOS idiom. The height is published as
